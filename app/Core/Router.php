@@ -81,6 +81,15 @@ class Router {
                 }
             }
 
+            // CSRF protection for state-changing web requests. Routes tagged with the
+            // 'Api' middleware are exempt here — token/session auth for the JSON API
+            // is handled by ApiMiddleware itself (Phase 8).
+            if (!in_array($method, ['GET', 'HEAD'], true) && !in_array('Api', $route['middleware'], true)) {
+                if (!csrf_verify()) {
+                    return $this->csrfFailed();
+                }
+            }
+
             return $this->invoke($route['handler'], $params);
         }
 
@@ -102,5 +111,14 @@ class Router {
             return Response::json(['error' => 'Not Found'], 404);
         }
         return View::render('errors/404', [], 'frontend');
+    }
+
+    private function csrfFailed(): mixed {
+        http_response_code(419);
+        if (Request::wantsJson()) {
+            return Response::json(['error' => 'Invalid or expired security token. Please refresh and try again.'], 419);
+        }
+        flash('error', 'Your session expired. Please try again.');
+        return Response::redirect($_SERVER['HTTP_REFERER'] ?? '/');
     }
 }
