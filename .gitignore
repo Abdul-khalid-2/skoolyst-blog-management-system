@@ -1,0 +1,10 @@
+/.env
+/storage/logs/*
+/storage/cache/*
+/storage/temp/*
+/uploads/*
+!/uploads/images/.gitkeep
+!/uploads/media/.gitkeep
+!/uploads/module-specific/.gitkeep
+/vendor/
+.phpunit.result.cache

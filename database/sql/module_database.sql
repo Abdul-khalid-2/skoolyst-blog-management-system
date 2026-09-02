@@ -1,0 +1,1 @@
+-- Module database schema goes here. Keep each module database independent.

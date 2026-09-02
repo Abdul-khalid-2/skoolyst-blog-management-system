@@ -1,0 +1,1 @@
+<!doctype html><html><head><?php require __DIR__.'/../components/head.php'; ?></head><body><?php require __DIR__.'/../components/navbar.php'; ?><?php require __DIR__.'/../components/sidebar.php'; ?><?= $content ?? '' ?></body></html>

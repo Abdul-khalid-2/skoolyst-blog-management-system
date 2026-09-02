@@ -1,0 +1,1 @@
+<!-- Module frontend home page -->

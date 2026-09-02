@@ -1,0 +1,1 @@
+<!doctype html><html><head><?php require __DIR__.'/../components/head.php'; ?></head><body><main class="auth-layout"><?= $content ?? '' ?></main></body></html>

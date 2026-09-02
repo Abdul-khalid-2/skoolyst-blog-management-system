@@ -1,0 +1,24 @@
+/* Shared Skoolyst design system — keep this file aligned across every module. */
+:root {
+  --skoolyst-navy: #0A0E2A;
+  --skoolyst-blue: #0F4077;
+  --skoolyst-cyan: #00D9FF;
+  --skoolyst-gold: #F4B942;
+  --white: #FFFFFF;
+  --text: #172033;
+  --muted: #64748B;
+  --border: #E2E8F0;
+  --surface: #F8FAFC;
+  --radius: 10px;
+  --shadow: 0 4px 20px rgba(10,14,42,.08);
+  --container: 1200px;
+}
+* { box-sizing: border-box; }
+body { margin:0; font-family: Inter, system-ui, -apple-system, sans-serif; color:var(--text); background:var(--surface); }
+.container { width:min(100% - 32px, var(--container)); margin-inline:auto; }
+.btn { display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius); padding:.65rem 1rem; cursor:pointer; }
+.card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+.table { width:100%; border-collapse:collapse; background:var(--white); }
+.table th,.table td { padding:.75rem; border-bottom:1px solid var(--border); text-align:left; }
+.form-control { width:100%; padding:.7rem .8rem; border:1px solid var(--border); border-radius:var(--radius); }
+@media (max-width:768px) { .container { width:min(100% - 20px, var(--container)); } .table-wrap { overflow-x:auto; } }
