@@ -346,6 +346,18 @@ Design the blog schema (posts, categories, tags, post_tags, comments, media) inf
 * Create Models.
 * Keep database logic out of Controllers and Views.
 
+<!-- example tables  -->
+blog_api_keys
+blog_audit_log
+blog_categories
+blog_comments
+blog_media
+blog_migrationsHide
+blog_posts
+blog_post_tags
+blog_post_views_daily
+blog_tags
+blog_users
 **CHECKPOINT → STOP AND REPORT**
 
 ## Phase 6 — Services & Controllers
