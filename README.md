@@ -305,6 +305,40 @@ Wire `AuthController` + `AuthService` to real session-based login/logout against
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 4 Deliverable — Authentication & Security Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] `users` table added to `database/sql/module_database.sql` (id, name, email, password, role: admin/editor/author, last_login_at, timestamps) — column names kept compatible with other Skoolyst modules per `User.php`'s existing convention
+- [x] `app/Models/User.php`: auth-scoped queries only (`findByEmail`, `findById`, `create`, `touchLastLogin`, `forSession`) via raw PDO — the generic find/all/save active-record layer is still Phase 5's job; deliberately not built early
+- [x] `app/Services/AuthService.php`: `attempt()` (bcrypt `password_verify`, session regeneration on success, updates `last_login_at`) and `logout()` (`Session::destroy()`), plus a session-based lockout (5 failed attempts → 5 minute lockout) — no extra table needed
+- [x] `app/Controllers/AuthController.php`: `showLogin`, `login` (server-side `Validator` rules + inline field errors), `logout`
+- [x] `routes/web.php` wired to the real controller: `GET/POST /login` (Guest-only), `GET /logout` (Auth-only)
+- [x] CSRF protection centralized in `Router::dispatch()`: every non-GET/HEAD route (except ones tagged `Api`, deferred to Phase 8) is checked against `csrf_verify()`; failure → 419 (JSON) or a flashed error + redirect back (web) — added `csrf_verify()` to `app/Helpers/csrf.php`
+- [x] `AdminMiddleware`'s TODO filled in: requires `role === 'admin'` specifically (403/redirect otherwise), separate from `AuthMiddleware` which only requires being logged in
+- [x] Secure session handling reused from Phase 2's `Session::start()` (httponly/secure/samesite cookie params from `.env`) + `Session::regenerate()` on every successful login (fixation protection)
+- [x] Added `database/seeders/seed_admin.php` — one-off CLI script to create a default admin account for local testing (`php database/seeders/seed_admin.php`)
+- [x] **Full end-to-end verification against a real MariaDB instance** (not just the sandbox autoload shim from Phases 2–3): seeded an admin, then verified — wrong password → rejected with an inline error; correct password → session created, `last_login_at` updated, redirected to `/dashboard`; `/dashboard` unauthenticated → redirect to `/login`; `/dashboard` authenticated → 200; a POST to `/login` missing the CSRF field → blocked (419 → redirect); 5 failed attempts in a row → 6th attempt blocked with the lockout message; `/logout` → session cleared, `/dashboard` redirects again. No PHP errors in any case.
+
+**Files changed:**
+- New: `app/Services/AuthService.php` (implemented), `app/Models/User.php` (implemented), `app/Controllers/AuthController.php` (implemented), `database/seeders/seed_admin.php`
+- Modified: `database/sql/module_database.sql` (users table), `app/Helpers/csrf.php` (`csrf_verify()`), `app/Core/Router.php` (CSRF enforcement + 419 handler), `app/Middleware/AdminMiddleware.php` (role check), `routes/web.php` (real login/logout routes), `resources/views/auth/login.php` (inline validation errors)
+
+**Assumptions:**
+- No public registration/forgot-password screens were built — this module's dashboard is an internally-provisioned CMS (accounts created via `User::create()`/the seeder, not self-service signup). Flag if that's wrong and I'll add them.
+- `GET /logout` (not `POST`) for simplicity, matching the blueprint's minimal style; it's CSRF-exempt by virtue of being a GET request. This is a common, low-risk trade-off (worst case is a forced logout, not account takeover) but can be hardened to POST-only later if you'd prefer.
+- Lockout state lives in the session (not a database table) — resets if the person clears cookies. Fine for this scale; a persistent `login_attempts` table would be the Phase-later hardening if brute-force from rotating sessions becomes a real concern.
+- Verified against a real MariaDB instance in this sandbox (not committed/persisted) rather than the Phase 2/3 autoload-only shim, since this phase's logic is meaningless without a real database round-trip.
+
+**Remaining:**
+- [ ] Phase 5 — Database & Models (generic active-record layer, blog-specific tables: posts, categories, tags, comments, media)
+
+**Next Phase (Phase 5 — Database & Models):**
+Design the blog schema (posts, categories, tags, post_tags, comments, media) informed by the Supabase migration reviewed in Phase 1, build out `Model`'s generic active-record methods, and create `Post`/`Category`/`Tag`/`Comment`/`Media` models on top of it.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 5 — Database & Models
 
 * Create module database structure.
