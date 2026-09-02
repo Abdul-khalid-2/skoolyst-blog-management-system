@@ -15,4 +15,18 @@ class Response {
         header('Location: ' . $url, true, $status);
         exit;
     }
+
+    public static function text(string $body, int $status = 200): never {
+        http_response_code($status);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo $body;
+        exit;
+    }
+
+    public static function html(string $body, int $status = 200): never {
+        http_response_code($status);
+        header('Content-Type: text/html; charset=utf-8');
+        echo $body;
+        exit;
+    }
 }

@@ -7,7 +7,8 @@ use Skoolyst\Core\Request;
 
 Session::start();
 
-// Load route definitions here after implementing Router::dispatch().
-require dirname(__DIR__) . '/routes/web.php';
-
-// API/admin routing can be selected by the application's front controller strategy.
+// Web front controller. Admin/API surfaces get their own entry points
+// once Phase 6+ splits admin.php / api.php onto dedicated front controllers
+// or path-prefix dispatch.
+$router = require dirname(__DIR__) . '/routes/web.php';
+$router->dispatch(Request::method(), Request::uri());
