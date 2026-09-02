@@ -258,6 +258,42 @@ Convert the ZIP's UI into reusable PHP components (header/navbar, footer, sideba
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 3 Deliverable — Shared UI System Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] Structural components implemented: `navbar.php`, `footer.php` (new), `sidebar.php` — theme-matched, using `is_authenticated()`/`auth_user()` for conditional nav state
+- [x] Atomic reusable components implemented via a new `component($name, $data)` helper: `button`, `card`, `table` (with empty-state fallback), `input` (text/email/password/textarea/select + inline errors), `alert` (success/error/warning/info, dismissible), `modal`, `pagination`, `badge`, `empty-state`
+- [x] `View::render()` extended with an optional `$layout` param — captures the view's output as `$content` and wraps it, so Controllers/routes call e.g. `View::render('frontend/home', [], 'frontend')`
+- [x] Layouts implemented: `frontend.php` (navbar + flash alerts + footer), `admin.php` (sidebar + topbar + flash alerts), `auth.php` (centered card) — all three pull in `assets/js/app.js`, admin also pulls `admin.js`
+- [x] `head.php` extended with optional `$description` and `$extraCss`
+- [x] Existing stub views converted into real, component-driven pages so all three layouts could be exercised end-to-end: `frontend/home.php` (hero/search/featured grid/newsletter), `admin/dashboard.php` (stat cards + posts table), `auth/login.php`, `errors/404.php`, `errors/500.php` — all using **static placeholder data**; real data wiring is Phase 6/7's job
+- [x] Skoolyst theme (Navy/Blue/Cyan/Gold tokens already in `app.css`) applied across every new component and layout; `admin.css` extended with the sidebar/topbar shell
+- [x] Responsive rules added: collapsing navbar → hamburger menu below 768px, collapsing admin sidebar → toggle below 900px, `post-grid`/`stat-grid` auto-fit grids, existing `table-wrap` horizontal scroll reused
+- [x] `resources/js/app.js` (nav toggle, dismissible alerts, modal open/close) and `resources/js/admin.js` (sidebar toggle, `data-confirm` guard) implemented
+- [x] `public/assets/{css,js}` populated as the web-servable mirror of `resources/{css,js}` (the architecture keeps `public/` as the only web-exposed directory — see Assumptions)
+- [x] Added `bin/dev-router.php`, a local-testing-only router for `php -S` that mirrors `public/.htaccess`'s "serve real files directly, else route through `index.php`" rule (same pattern already used in the sibling [[skoolyst-blogs]] repo)
+- [x] Boot-tested all three layouts end-to-end via `php -S ... bin/dev-router.php`: `/` (frontend, 200), `/login` (auth, 200), `/dashboard` unauthenticated (redirects 302 to `/login` via `AuthMiddleware`) and authenticated (rendered directly, 200, no errors), static assets under `/assets/...` (200), unmatched route (404 via the themed error page) — no PHP warnings/errors in any case
+
+**Files changed:**
+- New: `resources/views/components/footer.php`, `app/Helpers/component.php`, `bin/dev-router.php`, `public/assets/css/{app,admin}.css`, `public/assets/js/{app,admin,module}.js`
+- Rewritten: all 9 previously-empty component stubs, all 3 layouts, `resources/views/{frontend/home,admin/dashboard,auth/login,errors/404,errors/500}.php`, `resources/css/{app,admin}.css`, `resources/js/{app,admin}.js`
+- Modified: `app/Core/View.php` (layout support), `app/Core/Router.php` (404 now uses the frontend layout), `routes/web.php` (temporary closures to exercise the 3 layouts — replaced by real Controllers in Phase 6), `bootstrap/helpers.php` (registers `component()`)
+
+**Assumptions:**
+- The ZIP's actual page copy/markup (hero text, dashboard stats, etc.) was **not** ported verbatim — Phase 3 is structural (components/layouts/theme), so placeholder copy was used; Phase 7 (Views & Functionality) is where each screen gets its real content and is wired to live data.
+- `resources/css`/`resources/js` are the source files to edit; `public/assets/css`/`public/assets/js` are their served copies (no build step exists in this blueprint). Keep both in sync when editing — worth automating in Phase 11 (Documentation) or earlier if this becomes error-prone.
+- Same sandbox limitation as Phase 2: no `composer install` here, boot-tested via a local, uncommitted autoload shim.
+
+**Remaining:**
+- [ ] Phase 4 — Authentication & Security (real login/logout, password hashing, CSRF verification, role checks in `AdminMiddleware`)
+
+**Next Phase (Phase 4 — Authentication & Security):**
+Wire `AuthController` + `AuthService` to real session-based login/logout against a `users` table, verify CSRF tokens on state-changing requests, and fill in the `AdminMiddleware`/`ApiMiddleware` TODOs left in Phase 2.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 4 — Authentication & Security
 
 * Implement authentication.

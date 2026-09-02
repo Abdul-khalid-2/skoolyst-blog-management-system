@@ -2,12 +2,22 @@
 declare(strict_types=1);
 
 use Skoolyst\Core\Router;
+use Skoolyst\Core\View;
 
 $router = new Router();
 
-// Boot-verification route (Phase 2). Real frontend routes/controllers land in Phase 3+.
+// Temporary closures for Phase 3 (Shared UI System) verification.
+// Replaced by real Controllers/Services in Phase 6 — Services & Controllers.
 $router->get('/', function () {
-    echo 'Skoolyst Blog module booted successfully.';
+    View::render('frontend/home', [], 'frontend');
 });
+
+$router->get('/login', function () {
+    View::render('auth/login', [], 'auth');
+}, ['Guest']);
+
+$router->get('/dashboard', function () {
+    View::render('admin/dashboard', [], 'admin');
+}, ['Auth']);
 
 return $router;

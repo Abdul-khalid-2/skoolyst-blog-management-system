@@ -101,6 +101,6 @@ class Router {
         if (Request::wantsJson()) {
             return Response::json(['error' => 'Not Found'], 404);
         }
-        return View::render('errors/404');
+        return View::render('errors/404', [], 'frontend');
     }
 }
