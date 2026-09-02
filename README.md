@@ -151,6 +151,57 @@ If a phase is **BLOCKED**, stop immediately and explain exactly what is blocking
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 1 Deliverable — Screen Inventory & Implementation Checklist
+
+**Frontend source:** `skoolyst-blog-management-system` UI export (bolt.new build, Supabase-backed).
+
+#### Public site screens
+- [ ] `index.php` → Home — hero/search, featured + latest post grids, newsletter form
+- [ ] `blog.php` → Archive — search, category filter, sort, pagination
+- [ ] `category.php` → Category archive — title/description driven by `?cat=` slug
+- [ ] `post.php` → Single post — cover, body, tags, author block, share buttons, comments + comment form
+- [ ] `about.php` → Static content + team grid (bug: reads undefined global `MOCK_AUTHORS`)
+- [ ] `contact.php` → Contact form (currently client-side only, "demo — no real submission")
+
+#### Dashboard screens (auth-gated)
+- [ ] `dashboard/login.php` → Login (Supabase auth today; demo credentials hard-coded in markup)
+- [ ] `dashboard/index.php` → Overview — stat cards, monthly views chart, recent posts table
+- [ ] `dashboard/posts.php` → Posts list/manage (bug: reads undefined global `MOCK_CATEGORIES`)
+- [ ] `dashboard/post-editor.php` → Create/edit post form (title, slug, cover, category, tags, status)
+- [ ] `dashboard/categories.php` → Categories CRUD (modal-driven)
+- [ ] `dashboard/media.php` → Media library
+
+#### Shared assets
+- `assets/css/style.css`, `assets/css/dashboard.css` — design tokens & styles
+- `assets/js/api.js` — full Supabase REST/Auth client (browser talks to Supabase directly)
+- `assets/js/auth.js`, `assets/js/app.js`, `assets/js/dashboard.js` — page logic
+- `supabase/migrations/*.sql` — existing schema (`blog_users`, `blog_categories`, `blog_posts`, `blog_tags`, `blog_post_tags`, `blog_comments`, `blog_media`, `blog_post_views_daily`, `blog_audit_log`) — useful reference for the module's own MySQL schema in Phase 5
+
+#### Mapping: frontend screen → blueprint MVC
+
+| Frontend screen | Target view | Layout | Controller | Notes |
+|---|---|---|---|---|
+| index.php | resources/views/frontend/home.php | frontend | PostController@home | stub exists |
+| blog.php | resources/views/frontend/blog.php (new) | frontend | PostController@index (new) | |
+| category.php | resources/views/frontend/category.php (new) | frontend | CategoryController@show (new) | |
+| post.php | resources/views/frontend/post.php (new) | frontend | PostController@show (new) | |
+| about.php | resources/views/frontend/about.php (new) | frontend | PageController@about (new) | team grid needs real Author data |
+| contact.php | resources/views/frontend/contact.php (new) | frontend | ContactController@store (new) | needs real server-side handling |
+| dashboard/login.php | resources/views/auth/login.php | auth | AuthController@login | stub exists |
+| dashboard/index.php | resources/views/admin/dashboard.php | admin | DashboardController@index | stub exists |
+| dashboard/posts.php | resources/views/admin/posts/index.php (new) | admin | PostAdminController@index (new) | |
+| dashboard/post-editor.php | resources/views/admin/posts/edit.php (new) | admin | PostAdminController@edit/update (new) | |
+| dashboard/categories.php | resources/views/admin/categories/index.php (new) | admin | CategoryAdminController@index (new) | |
+| dashboard/media.php | resources/views/admin/media/index.php (new) | admin | MediaController@index (new) | |
+
+#### Missing / inconsistent parts found in the source ZIP
+- [ ] `api.js` talks directly to Supabase from the browser (URL + anon key hard-coded) — must be fully replaced by our own PHP session-auth + `routes/api.php` endpoints; none of its Supabase calls carry over as-is.
+- [ ] Three leftover references to an undefined global from an earlier mock-data version: `MOCK_CATEGORIES` (blog.php, dashboard/posts.php) and `MOCK_AUTHORS` (about.php) — throws JS errors as shipped.
+- [ ] Contact form and comment form are demo-only (no real submission) — need real Controllers/Services.
+- [ ] Color tokens partially match the blueprint theme (`--primary:#0f4077` = blueprint Blue) but `--secondary:#4361ee` is not the blueprint's Neon Cyan/Gold — needs remapping in Phase 3.
+- [ ] No CSRF protection anywhere (expected for a static prototype) — required per blueprint rules.
+- [ ] Login page hard-codes demo credentials in the markup — remove once real auth is wired up.
+
 ## Phase 2 — Core Setup
 
 * Create the blueprint directory structure.
