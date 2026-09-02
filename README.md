@@ -213,6 +213,40 @@ If a phase is **BLOCKED**, stop immediately and explain exactly what is blocking
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 2 Deliverable — Core Setup Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] `app/Core/Router.php` implemented: static + `{param}` dynamic segments, per-route middleware chain (resolved to `Skoolyst\Middleware\{Name}Middleware::handle()`), closure and `[Controller::class, 'method']` handlers, JSON/HTML-aware 404 fallback
+- [x] `app/Core/Request.php` extended: `_method` override (PUT/PATCH/DELETE from HTML forms), JSON body parsing (`jsonBody()`), `wantsJson()`, `query()`, `only()`
+- [x] `app/Core/Response.php` extended: `text()` and `html()` alongside existing `json()`/`redirect()`
+- [x] `app/Core/Session.php` implemented: cookie params from `.env` (`SESSION_NAME`/`SESSION_SECURE`/`SESSION_HTTP_ONLY`), `get`/`put`/`has`/`forget`/`regenerate`/`destroy`
+- [x] `app/Core/Validator.php` implemented: `required`, `email`, `numeric`, `min`, `max`, `confirmed`, `in` rules, pipe-separated rule strings
+- [x] `app/Middleware/{Auth,Guest,Admin,Api}Middleware.php` given a real `handle(array $params): bool` contract so the Router can invoke them; **Auth/Guest** already redirect based on `is_authenticated()`; **Admin**'s role check and **Api**'s token/rate-limit checks are left as explicit `TODO`s for Phase 4/8 since that's where the real auth logic belongs
+- [x] `routes/web.php` now returns a wired `Router` instance with a boot-verification route
+- [x] `public/index.php` now calls `$router->dispatch(Request::method(), Request::uri())`
+- [x] `app/Core/Database.php` (PDO connection) and `app/Core/View.php` reviewed — already correct for this phase, left as-is
+- [x] Boot verified end-to-end with PHP 8.3's built-in server: `GET /` → `200 OK` with session cookie set; unmatched route → `404` via `resources/views/errors/404.php`; a dynamic `{param}` route and the new `Validator` rules were also exercised directly — all passed
+
+**Files changed:**
+- `app/Core/Router.php`, `app/Core/Request.php`, `app/Core/Response.php`, `app/Core/Session.php`, `app/Core/Validator.php`
+- `app/Middleware/AuthMiddleware.php`, `app/Middleware/GuestMiddleware.php`, `app/Middleware/AdminMiddleware.php`, `app/Middleware/ApiMiddleware.php`
+- `routes/web.php`, `public/index.php`
+
+**Assumptions:**
+- `composer install` could not be run in this environment (no access to packagist/getcomposer here), so boot testing used a temporary local PSR-4 autoload shim instead of `vendor/autoload.php` — the shim was never committed (`vendor/` is already gitignored). Composer's own `require` (`vlucas/phpdotenv`) is unchanged; run `composer install` on your machine/server before testing there.
+- No `.env` was created/committed; defaults baked into the Core classes (from `.env.example`) were used for the boot test. Create your own `.env` from `.env.example` for real DB-backed testing.
+- `app/Core/Model.php`'s active-record methods (`find`, `all`, `save`, etc.) were intentionally left for Phase 5 (Database & Models), per the blueprint's own phase split.
+
+**Remaining:**
+- [ ] Phase 3 — Shared UI System (reusable components, layouts, theme, responsiveness)
+
+**Next Phase (Phase 3 — Shared UI System):**
+Convert the ZIP's UI into reusable PHP components (header/navbar, footer, sidebar), build the frontend/admin/auth layouts, and remap the ZIP's colors onto the Skoolyst theme tokens identified in the Phase 1 report.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 3 — Shared UI System
 
 * Convert existing UI into reusable PHP components.
