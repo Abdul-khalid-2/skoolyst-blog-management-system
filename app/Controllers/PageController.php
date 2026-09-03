@@ -14,11 +14,11 @@ use Skoolyst\Core\View;
  */
 class PageController {
     public function about(): void {
-        View::render('frontend/about', ['title' => 'About — Skoolyst Blog', 'activeNav' => 'about'], 'frontend');
+        View::render('frontend/about', ['title' => 'About — Skoolyst Blog', 'description' => 'Learn about Skoolyst and this blog.', 'activeNav' => 'about'], 'frontend');
     }
 
     public function contact(): void {
-        View::render('frontend/contact', ['title' => 'Contact — Skoolyst Blog', 'activeNav' => 'contact'], 'frontend');
+        View::render('frontend/contact', ['title' => 'Contact — Skoolyst Blog', 'description' => 'Get in touch with the Skoolyst team.', 'activeNav' => 'contact'], 'frontend');
     }
 
     public function submitContact(): never {

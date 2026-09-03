@@ -28,6 +28,7 @@ class CategoryController {
 
         View::render('frontend/category', [
             'title' => $category['name'] . ' — Skoolyst Blog',
+            'description' => $category['description'] ?: ('Articles in ' . $category['name']),
             'activeNav' => 'blog',
             'category' => $category,
             'posts' => $result['data'],
@@ -59,11 +60,12 @@ class CategoryController {
     }
 
     public function update(int $id): never {
-        $this->categories->update($id, [
+        $data = array_filter([
             'name' => Request::input('name'),
             'description' => Request::input('description'),
             'color' => Request::input('color'),
-        ], (int) auth_user()['id']);
+        ], fn ($v) => $v !== null && $v !== '');
+        $this->categories->update($id, $data, (int) auth_user()['id']);
         flash('success', 'Category updated.');
         Response::redirect(url('/dashboard/categories'));
     }

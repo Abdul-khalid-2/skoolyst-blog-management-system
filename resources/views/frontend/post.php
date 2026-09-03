@@ -4,7 +4,7 @@
 <article class="container post-detail">
   <?php if ($category): ?><p><?php component('badge', ['label' => $category['name'], 'variant' => 'info']); ?></p><?php endif; ?>
   <h1><?= clean($post['title']) ?></h1>
-  <p class="post-meta"><?= format_date($post['published_date'] ?? $post['created_at']) ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views</p>
+  <p class="post-meta"><?= format_date($post['published_date'] ?? $post['created_at']) ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views</p>
 
   <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover"><?php endif; ?>
 

@@ -117,6 +117,27 @@ class PostService {
         foreach (array_diff($current, $tagIds) as $tagId) $this->tags->detachFromPost((int) $tagId, $postId);
     }
 
+    /**
+     * Create any tags in $names that don't already exist (matched by slug),
+     * then attach the full resulting set ($tagIds + the new ones) to the post
+     * and detach anything no longer selected. Used by the post editor's tag
+     * picker, which offers existing tags as checkboxes plus a free-text field
+     * for new ones.
+     */
+    public function syncTagsFromEditor(int $postId, array $tagIds, string $newTagNames): void {
+        $tagIds = array_map('intval', $tagIds);
+        foreach (array_filter(array_map('trim', explode(',', $newTagNames))) as $name) {
+            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9]+/', '-', $name), '-'));
+            if ($slug === '') continue;
+            $existing = $this->tags->findBySlug($slug);
+            $tagIds[] = $existing ? (int) $existing['id'] : $this->tags->create(['name' => $name, 'slug' => $slug]);
+        }
+
+        $current = array_column($this->tags->forPost($postId), 'id');
+        foreach (array_diff($tagIds, $current) as $tagId) $this->tags->attachToPost((int) $tagId, $postId);
+        foreach (array_diff($current, $tagIds) as $tagId) $this->tags->detachFromPost((int) $tagId, $postId);
+    }
+
     public function slugify(string $title): string {
         $base = strtolower(trim(preg_replace('/[^A-Za-z0-9]+/', '-', $title), '-')) ?: 'post';
         $slug = $base;

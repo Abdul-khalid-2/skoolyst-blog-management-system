@@ -22,5 +22,19 @@ $isEdit = !empty($post['id']);
   ]); ?>
   <?php component('input', ['name' => 'seo_title', 'label' => 'SEO Title', 'value' => $post['seo_title'] ?? '']); ?>
   <?php component('input', ['type' => 'textarea', 'name' => 'seo_description', 'label' => 'SEO Description', 'value' => $post['seo_description'] ?? '']); ?>
+
+  <div class="form-group">
+    <label>Tags</label>
+    <div class="tag-picker">
+      <?php foreach (($allTags ?? []) as $tag): ?>
+        <label class="tag-picker-option">
+          <input type="checkbox" name="tags[]" value="<?= (int) $tag['id'] ?>"<?= in_array($tag['id'], $selectedTagIds ?? [], true) ? ' checked' : '' ?>>
+          <?= clean($tag['name']) ?>
+        </label>
+      <?php endforeach; ?>
+    </div>
+    <input type="text" name="new_tags" class="form-control" placeholder="Add new tags, comma-separated">
+  </div>
+
   <?php component('button', ['label' => $isEdit ? 'Save Changes' : 'Create Post', 'type' => 'submit']); ?>
 </form>
