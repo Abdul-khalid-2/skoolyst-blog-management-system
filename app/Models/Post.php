@@ -39,6 +39,15 @@ class Post extends Model {
         return $row ?: null;
     }
 
+    /** Excludes soft-deleted posts, matching blog_posts.deleted_at. */
+    public function count(array $conditions = []): int {
+        [$clause, $params] = $this->buildWhere($conditions);
+        $where = 'deleted_at IS NULL' . ($clause ? " AND {$clause}" : '');
+        $stmt = $this->pdo()->prepare("SELECT COUNT(*) FROM {$this->table} WHERE {$where}");
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** Soft delete — sets deleted_at instead of removing the row. */
     public function delete(int|string $id): bool {
         $stmt = $this->pdo()->prepare("UPDATE {$this->table} SET deleted_at = NOW() WHERE id = :id");

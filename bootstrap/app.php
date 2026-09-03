@@ -11,4 +11,4 @@ if (file_exists($root . '/.env')) {
     Dotenv::createImmutable($root)->safeLoad();
 }
 
-require __DIR__ . '/helpers.php';
+require_once __DIR__ . '/helpers.php';

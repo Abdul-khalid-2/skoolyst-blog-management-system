@@ -405,6 +405,38 @@ Build `PostService`/`CategoryService`/`CommentService`/`MediaService` (business 
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 6 Deliverable — Services & Controllers Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] Services: `PostService` (homepage/archive/search/pagination, slug generation with collision-safe suffixing, tag syncing, soft delete, audit logging), `CategoryService`, `CommentService` (submissions always saved as `pending`), `MediaService` (upload via a new `handle_upload()` helper, delete also removes the file from disk), `DashboardService` (stats + recent posts)
+- [x] Controllers: `PostController` (public: `home`/`index`/`show`; admin: `adminIndex`/`create`/`store`/`edit`/`update`/`destroy`), `CategoryController` (public `show`; admin CRUD), `CommentController` (`store`), `MediaController` (admin `index`/`upload`/`destroy`, plus public `serve` — see below), `PageController` (`about`/`contact`/`submitContact`/`newsletter`), `DashboardController` rewritten to use `DashboardService`
+- [x] All 12 screens mapped in Phase 1 are now wired to real routes/data: `routes/web.php` (public) and a new `routes/admin.php` (registered onto the same `Router` instance web.php requires, so there's still one dispatch call) replace every temporary closure from Phases 2–4
+- [x] `resources/views/frontend/{blog,category,post,about,contact}.php` and `resources/views/admin/{posts/index,posts/edit,categories/index,media/index}.php` created; `home.php` and `admin/dashboard.php` (from Phase 3) rewired from placeholder to real data
+- [x] Uploaded files are stored **outside** `public/` (in a project-root `uploads/` dir) and only reachable through `MediaController@serve` (`GET /media/{filename}`) — deliberate: keeps arbitrary uploaded files from being directly web-addressable/executable
+- [x] `Model::rawQuery()`/`rawScalar()` added for the one case the generic helpers don't cover (search's `LIKE`, in `PostService::publicList`)
+- [x] Two small correctness fixes surfaced by testing, unrelated to this phase's main scope but worth fixing now: `Router::invoke()` now casts numeric route params (e.g. `{id}`) to `int` (typed Controller params were failing under `strict_types` otherwise); `bootstrap/app.php` now `require_once`s `helpers.php` (was a plain `require`, which would fatal once real `composer install` runs, since `composer.json` also autoloads that same file)
+- [x] **Full end-to-end verification against real MariaDB + a live PHP server**, not just lint: every public page (`/`, `/blog`, `/category/{slug}`, `/post/{slug}`, `/about`, `/contact`) returns 200; a public comment submission lands as `pending`; full admin login → create/edit/delete a post (including slug auto-generation and soft delete) → create/delete a category → upload a real PNG, serve it back via `/media/{filename}`, then delete it (file removed from disk too) — all verified with real HTTP requests and real DB state checks, not just code review
+
+**Files changed:**
+- New: `app/Services/{PostService,CategoryService,CommentService,MediaService,DashboardService}.php`, `app/Controllers/{PostController,CategoryController,CommentController,MediaController,PageController}.php`, `routes/admin.php`, 9 new/rewritten view files
+- Modified: `app/Controllers/DashboardController.php`, `app/Core/Model.php` (`rawQuery`/`rawScalar`), `app/Core/Router.php` (int param casting), `app/Helpers/upload.php` (implemented), `app/Helpers/format.php` (`format_bytes`), `bootstrap/app.php`, `composer.json` (`ext-mbstring`, `ext-pdo`), `resources/views/{admin/dashboard,frontend/home}.php`, `routes/web.php`, `resources/css/app.css` (+ mirrored to `public/assets/css/app.css`)
+
+**Assumptions:**
+- No dedicated comment-moderation admin screen was built — it wasn't among the 12 screens mapped in Phase 1's ZIP inventory. `CommentService::approve()/reject()` exist and are ready to wire up if you want that screen added.
+- Contact form and newsletter signup only flash an acknowledgment — no email/ticketing system or subscriber list exists to actually send/store anything yet. Say the word if you want a real integration (e.g. SMTP, or a `blog_subscribers` table).
+- Category editing UI wasn't built (the ZIP's version was modal-driven); `CategoryController@update`/`CategoryService::update()` exist and are routed, just not triggered from the current add/delete-only categories screen — natural fit for Phase 7's UI/UX pass.
+- Discovered `php-mbstring` and `php-gd`-style extensions are exercised by this code (mbstring by `Validator`'s `mb_strlen`, and real image validation by `MediaService`'s MIME check) — added `ext-mbstring`/`ext-pdo` to `composer.json`'s `require` as a result; most hosts have these by default, flagging in case yours doesn't.
+
+**Remaining:**
+- [ ] Phase 7 — Views & Functionality (richer post editor, tag picker UI, SEO meta tags in `<head>`, any remaining polish/edge cases across the 12 screens)
+
+**Next Phase (Phase 7 — Views & Functionality):**
+Polish pass across all screens: a tag picker on the post editor (backend already supports it via `PostService::syncTags`), rendering `seo_title`/`seo_description` into `<head>`, category edit UI, and any remaining fit-and-finish against the original ZIP's design.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 7 — Views & Functionality
 
 * Convert all frontend screens to PHP Views.

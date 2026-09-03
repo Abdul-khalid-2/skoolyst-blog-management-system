@@ -1,20 +1,15 @@
 <?php
-/**
- * Admin dashboard overview. Static placeholder content for Phase 3 —
- * real stats/posts come from DashboardController + Post/Comment models in Phase 6/7.
- */
-$title = 'Dashboard';
-$activeNav = 'dashboard';
-$stats = [
-    ['label' => 'Published Posts', 'value' => '—'],
-    ['label' => 'Draft Posts', 'value' => '—'],
-    ['label' => 'Comments', 'value' => '—'],
-    ['label' => 'Views (30d)', 'value' => '—'],
+/** Admin dashboard overview. $stats, $recentPosts from DashboardController@index. */
+$statCards = [
+    ['label' => 'Published Posts', 'value' => $stats['published']],
+    ['label' => 'Draft Posts', 'value' => $stats['draft']],
+    ['label' => 'Pending Comments', 'value' => $stats['comments']],
+    ['label' => 'Total Views', 'value' => $stats['views']],
 ];
 ?>
 <div class="stat-grid">
-  <?php foreach ($stats as $stat): ob_start(); ?>
-    <p class="stat-value"><?= clean($stat['value']) ?></p>
+  <?php foreach ($statCards as $stat): ob_start(); ?>
+    <p class="stat-value"><?= clean((string) $stat['value']) ?></p>
     <p class="stat-label"><?= clean($stat['label']) ?></p>
     <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
   <?php endforeach; ?>
@@ -23,8 +18,12 @@ $stats = [
 <h2>Recent Posts</h2>
 <?php
 component('table', [
-    'headers' => ['Title', 'Category', 'Status', 'Updated'],
-    'rows' => [],
+    'headers' => ['Title', 'Status', 'Updated'],
+    'rows' => array_map(fn ($p) => [
+        clean($p['title']),
+        '<span class="badge badge-' . ($p['status'] === 'published' ? 'success' : 'default') . '">' . clean($p['status']) . '</span>',
+        format_date($p['updated_at']),
+    ], $recentPosts),
     'emptyMessage' => 'No posts yet — create your first one from the Posts page.',
 ]);
 ?>

@@ -1,10 +1,8 @@
 <?php
 /**
- * Frontend home page. Static placeholder content for Phase 3 (Shared UI System) —
- * real post data comes from PostController@home + Post model in Phase 6/7.
+ * Frontend home page. $title, $activeNav, $featured, $latest come from
+ * PostController@home via PostService::forHomepage().
  */
-$title = 'Skoolyst Blog — Home';
-$activeNav = 'home';
 ?>
 <section class="hero container">
   <h1>Insights, updates and stories from Skoolyst</h1>
@@ -18,14 +16,28 @@ $activeNav = 'home';
 <section class="container">
   <h2>Featured Articles</h2>
   <div class="post-grid">
-    <?php for ($i = 1; $i <= 3; $i++): ob_start(); ?>
-      <p class="post-card-category"><?php component('badge', ['label' => 'Category', 'variant' => 'info']); ?></p>
-      <h3>Sample featured post title #<?= $i ?></h3>
-      <p>A short teaser of the article content goes here once real posts are wired up in Phase 7.</p>
+    <?php if (empty($featured)): ?>
+      <?php component('empty-state', ['title' => 'No posts yet', 'message' => 'Published posts will appear here.']); ?>
+    <?php else: foreach ($featured as $post): ob_start(); ?>
+      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
+      <p><?= clean($post['excerpt'] ?? '') ?></p>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
-    <?php endfor; ?>
+    <?php endforeach; endif; ?>
   </div>
 </section>
+
+<?php if (!empty($latest)): ?>
+<section class="container">
+  <h2>Latest Articles</h2>
+  <div class="post-grid">
+    <?php foreach ($latest as $post): ob_start(); ?>
+      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
+      <p><?= clean($post['excerpt'] ?? '') ?></p>
+      <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
+    <?php endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
 
 <section class="container newsletter">
   <?php ob_start(); ?>

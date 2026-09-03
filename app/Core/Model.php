@@ -118,6 +118,19 @@ abstract class Model {
         return $this->fillable ? array_intersect_key($data, array_flip($this->fillable)) : $data;
     }
 
+    /** Escape hatch for queries the generic helpers above don't cover (LIKE, JOINs, etc.). */
+    public function rawQuery(string $sql, array $params = []): array {
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function rawScalar(string $sql, array $params = []): mixed {
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
     /** @return array{0: string, 1: array} [whereClause, boundParams] */
     protected function buildWhere(array $conditions): array {
         if (!$conditions) return ['', []];
