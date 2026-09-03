@@ -15,14 +15,14 @@ use Skoolyst\Core\Database;
  */
 class User {
     public static function findByEmail(string $email): ?array {
-        $stmt = Database::connection()->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
+        $stmt = Database::connection()->prepare('SELECT * FROM blog_users WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
     }
 
     public static function findById(int $id): ?array {
-        $stmt = Database::connection()->prepare('SELECT * FROM users WHERE id = :id LIMIT 1');
+        $stmt = Database::connection()->prepare('SELECT * FROM blog_users WHERE id = :id LIMIT 1');
         $stmt->execute(['id' => $id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
@@ -30,7 +30,7 @@ class User {
 
     public static function create(string $name, string $email, string $password, string $role = 'author'): int {
         $stmt = Database::connection()->prepare(
-            'INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES (:name, :email, :password, :role, NOW(), NOW())'
+            'INSERT INTO blog_users (name, email, password, role, created_at, updated_at) VALUES (:name, :email, :password, :role, NOW(), NOW())'
         );
         $stmt->execute([
             'name' => $name,
@@ -42,7 +42,7 @@ class User {
     }
 
     public static function touchLastLogin(int $id): void {
-        $stmt = Database::connection()->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id');
+        $stmt = Database::connection()->prepare('UPDATE blog_users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
 
