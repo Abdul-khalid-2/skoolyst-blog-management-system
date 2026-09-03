@@ -97,6 +97,11 @@ class Router {
     }
 
     private function invoke(callable|array $handler, array $params): mixed {
+        // Route params come from preg_match as strings; auto-cast purely
+        // numeric ones to int so typed `int $id` handler params work under
+        // strict_types without every Controller having to cast manually.
+        $params = array_map(fn ($v) => ctype_digit($v) ? (int) $v : $v, $params);
+
         if (is_array($handler)) {
             [$class, $method] = $handler;
             $instance = is_object($class) ? $class : new $class();

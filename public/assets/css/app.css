@@ -131,3 +131,16 @@ textarea.form-control { min-height:120px; resize:vertical; }
 .auth-brand { font-weight:800; font-size:1.2rem; margin-bottom:1.5rem; }
 .auth-brand span { color:var(--skoolyst-blue); }
 .auth-card form { text-align:left; }
+
+/* ---- Phase 6 additions ---- */
+.archive-filters { display:flex; gap:.75rem; flex-wrap:wrap; margin:1.5rem 0; }
+.archive-filters .form-control { flex:1; min-width:160px; }
+.post-detail { max-width:760px; margin-inline:auto; padding:2rem 0; }
+.post-meta { color:var(--muted); font-size:.9rem; }
+.post-cover { width:100%; border-radius:var(--radius); margin:1rem 0; }
+.post-body { line-height:1.7; margin:1.5rem 0; }
+.post-tags .badge { margin-right:.4rem; }
+.comments { margin-top:2.5rem; border-top:1px solid var(--border); padding-top:1.5rem; }
+.comment { padding:1rem 0; border-bottom:1px solid var(--border); }
+.comment-author { font-weight:700; margin:0 0 .25rem; }
+.admin-page-header { display:flex; justify-content:flex-end; margin-bottom:1rem; }
