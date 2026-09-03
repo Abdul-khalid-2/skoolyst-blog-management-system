@@ -352,13 +352,48 @@ blog_audit_log
 blog_categories
 blog_comments
 blog_media
-blog_migrationsHide
+blog_migrations
 blog_posts
 blog_post_tags
 blog_post_views_daily
 blog_tags
 blog_users
 **CHECKPOINT → STOP AND REPORT**
+
+### Phase 5 Deliverable — Database & Models Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] All 11 requested tables created as versioned migrations in `database/migrations/` (not a single dump file — see Assumptions): `blog_users`, `blog_categories`, `blog_posts`, `blog_tags`, `blog_post_tags`, `blog_comments`, `blog_media`, `blog_post_views_daily`, `blog_audit_log`, `blog_api_keys`, plus the migration-tracking table `blog_migrations` itself
+- [x] Column shapes ported from the Supabase schema reviewed in Phase 1 (types adapted Postgres→MySQL: `uuid`→`INT UNSIGNED AUTO_INCREMENT`, `timestamptz`→`DATETIME`, `jsonb`→`JSON`); FKs added (`blog_posts.category_id/author_id`, `blog_post_tags`, `blog_comments.post_id`, `blog_media.uploaded_by`, `blog_post_views_daily.post_id`, `blog_audit_log.user_id`, `blog_api_keys.user_id`); RLS policies were Postgres/Supabase-specific and are not applicable here — that authorization now lives in the PHP middleware/role layer from Phase 4
+- [x] `app/Core/Migrator.php` + `bin/migrate.php`: `php bin/migrate.php` runs pending migrations, `php bin/migrate.php rollback` undoes the last batch, tracked in `blog_migrations`
+- [x] `app/Core/Model.php` implemented as a generic active-record base: `all`, `find`, `where`, `count`, `create`, `update`, `delete`, `paginate` — all fillable-filtered, all parameterized (no injection surface)
+- [x] Models built on top of it: `Category`, `Tag` (incl. `attachToPost`/`detachFromPost`/`forPost` for the `blog_post_tags` pivot), `Post` (soft delete via `deleted_at`, `findBySlug`, `incrementViews`, `paginatePublished`/`paginateForDashboard`), `Comment` (defaults to `status=pending`), `Media`, `AuditLog` (`record()` helper for Phase 6+ to call), `ApiKey` (hash-only storage, for Phase 8)
+- [x] **Phase 4 correction:** `users` → `blog_users`, per your README note — `app/Models/User.php` updated (kept as its own specialized static-method class rather than migrating it onto the generic `Model` base, to avoid touching `AuthController`/`AuthService`'s call sites; see Assumptions), `database/seeders/seed_admin.php` unchanged (works as-is)
+- [x] Old `database/sql/module_database.sql` single-dump approach retired in favor of the migrations folder (left as a pointer comment, not deleted, so the file's history stays legible)
+- [x] **Verified against a fresh, real MariaDB database** (dropped and recreated to prove the migrations build the whole schema from nothing): all 11 tables created; re-running `migrate` is a no-op; `rollback` cleanly drops everything in reverse order and `migrate` rebuilds it identically
+- [x] **Full Model CRUD verified end-to-end**: created a user/category/post/tag/comment/media/audit row; `Tag::attachToPost` + `forPost` round-tripped correctly; `Post::update` then soft-`delete` correctly makes `find()`/`findBySlug()` return null while the row (and `deleted_at`) still exists in the table; `paginateForDashboard` correctly excluded the soft-deleted post from its count
+- [x] **Regression-checked Phase 4's auth flow** against the renamed `blog_users` table end-to-end (seed → login → session → `/dashboard` 200) — no breakage from the rename
+
+**Files changed:**
+- New: `app/Core/Migrator.php`, `bin/migrate.php`, `database/migrations/*.php` (10 files), `app/Models/{Category,Tag,Post,Comment,Media,AuditLog,ApiKey}.php`
+- Rewritten: `app/Core/Model.php` (generic active-record base)
+- Modified: `app/Models/User.php` (table renamed to `blog_users`), `database/sql/module_database.sql` (deprecated in favor of migrations)
+
+**Assumptions:**
+- Built a proper migration system (`database/migrations/` + `blog_migrations` tracking table + `bin/migrate.php`) rather than one static SQL dump, since `blog_migrations` was explicitly in your table list — this also matches the empty `database/migrations/.gitkeep` placeholder already in the blueprint.
+- `User` (Phase 4) stays a specialized static-method class rather than being refactored onto the new generic `Model` base — the content models (`Post`, `Category`, etc., all new this phase) use `Model` from the start. Happy to unify `User` onto `Model` too if you'd rather have one consistent pattern; it would mean small edits to `AuthController`/`AuthService`'s call sites.
+- `blog_api_keys` and `blog_audit_log` have tables + basic models now, but nothing calls them yet — `AuditLog::record()` gets wired into Services in Phase 6, `ApiKey` gets wired into `ApiMiddleware` in Phase 8.
+- Verified against a real (temporary, unpersisted) MariaDB instance in this sandbox, same as Phase 4 — not committed.
+
+**Remaining:**
+- [ ] Phase 6 — Services & Controllers (Post/Category/Comment/Media Services + Controllers, wiring the real dashboard/frontend routes on top of these Models)
+
+**Next Phase (Phase 6 — Services & Controllers):**
+Build `PostService`/`CategoryService`/`CommentService`/`MediaService` (business logic + `AuditLog` calls) and their Controllers, then replace the temporary closures in `routes/web.php` (home, dashboard) with real routes across `web.php`/`admin.php` for all 12 screens mapped back in Phase 1.
+
+**STOPPED — Waiting for your approval to continue.**
 
 ## Phase 6 — Services & Controllers
 
