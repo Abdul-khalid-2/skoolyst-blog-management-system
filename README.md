@@ -446,6 +446,36 @@ Polish pass across all screens: a tag picker on the post editor (backend already
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 7 Deliverable — Views & Functionality Report
+
+**Status:** PASS
+
+Most of this phase's bullets (real data, forms, CRUD, search/filters/pagination) were already delivered in Phase 6, since Controllers needed real views to render against. This phase closes the gaps flagged as deferred back then:
+
+**Completed:**
+- [x] **Tag picker on the post editor**: checkboxes for every existing tag (pre-checked on edit) plus a free-text "add new tags, comma-separated" field. New `PostService::syncTagsFromEditor()` creates any tags that don't exist yet (matched by slug) and syncs the full attach/detach set — backed by `PostService::syncTags`, which already existed but had nothing calling it from a Controller until now
+- [x] **Category edit UI**: added, using the modal component from Phase 3 (matching the original ZIP's modal-driven categories screen noted in Phase 1) — each row gets an "Edit" button that opens a pre-filled modal, `POST /dashboard/categories/{id}` (already routed in Phase 6, just not triggered from any UI until now)
+- [x] **SEO meta tags**: `head.php` now renders `<meta name="description">`, `og:title`/`og:description`/`og:image`, and `<link rel="canonical">` when a view supplies them; wired into every frontend Controller (home, blog, category, post, about, contact) — the post page uses `seo_title`/`seo_description` when set, falling back to the title/excerpt
+- [x] **Author byline** on the post page (`by {name}`), pulled via `User::findById()` from the post's `author_id` — was missing since Phase 1's mapping
+- [x] `.tag-picker`/`.tag-picker-option` styles added to `app.css` (mirrored to `public/assets/css/app.css`)
+- [x] Bug found and fixed during testing: `CategoryController@update` was sending `color => null` when the edit modal (which has no color field) submitted, violating `blog_categories.color`'s `NOT NULL` constraint (500 error) — now filters out empty/absent fields before updating, so only what's actually submitted changes
+- [x] **Verified end-to-end against real MariaDB + a live server**: created a post with two brand-new tags via the free-text field, confirmed both tags were created and attached in `blog_post_tags`, confirmed the edit page shows them pre-checked, confirmed the public post page renders both tag badges, the author byline, and the `og:title`/canonical meta tags; category modal update tested (including the color-null bug and its fix); re-ran a full regression sweep of every public + admin page — all 200, no PHP errors or warnings
+
+**Files changed:**
+- Modified: `app/Services/PostService.php` (`syncTagsFromEditor`), `app/Controllers/{PostController,CategoryController,PageController}.php`, `resources/views/admin/posts/edit.php` (tag picker), `resources/views/admin/categories/index.php` (edit modals), `resources/views/components/head.php` (SEO/OG tags), `resources/views/frontend/post.php` (author byline), `resources/css/app.css` (+ mirrored copy)
+
+**Assumptions:**
+- Didn't add share buttons to the post page (mentioned in Phase 1's screen inventory but cosmetic/non-blocking) or a dedicated tag-management screen (create/rename/delete tags outside of the post editor) — flag if either matters to you.
+- Contact/newsletter forms and comment moderation remain as scoped in Phase 6 (acknowledgment-only, no admin moderation screen) — unchanged this phase.
+
+**Remaining:**
+- [ ] Phase 8 — API (JSON endpoints, `blog_api_keys` auth via `ApiMiddleware`)
+
+**Next Phase (Phase 8 — API):**
+Build versioned JSON endpoints in `routes/api.php` (likely read-only: list/show posts, categories) authenticated via `blog_api_keys` + `ApiMiddleware`, which has had a `TODO` since Phase 2.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 8 — API
 
 * Implement API routes under `routes/api.php`.

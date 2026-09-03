@@ -22,6 +22,7 @@ class PostController {
         $sections = $this->posts->forHomepage();
         View::render('frontend/home', [
             'title' => 'Skoolyst Blog — Home',
+            'description' => 'Product news, teaching resources and community stories from Skoolyst.',
             'activeNav' => 'home',
             'featured' => $sections['featured'],
             'latest' => $sections['latest'],
@@ -39,6 +40,7 @@ class PostController {
 
         View::render('frontend/blog', [
             'title' => 'Articles — Skoolyst Blog',
+            'description' => 'Browse all articles from the Skoolyst blog.',
             'activeNav' => 'blog',
             'posts' => $result['data'],
             'page' => $result['page'],
@@ -58,12 +60,17 @@ class PostController {
         }
 
         $category = $post['category_id'] ? (new Category())->find((int) $post['category_id']) : null;
+        $author = $post['author_id'] ? \Skoolyst\Models\User::findById((int) $post['author_id']) : null;
 
         View::render('frontend/post', [
             'title' => $post['seo_title'] ?: $post['title'],
+            'description' => $post['seo_description'] ?: $post['excerpt'],
+            'canonical' => url('/post/' . $post['slug']),
+            'ogImage' => $post['cover_image'],
             'activeNav' => 'blog',
             'post' => $post,
             'category' => $category,
+            'author' => $author,
             'tags' => $this->posts->tagsFor((int) $post['id']),
             'comments' => $this->comments->approvedForPost((int) $post['id']),
         ], 'frontend');
@@ -90,6 +97,8 @@ class PostController {
             'activeNav' => 'posts',
             'post' => null,
             'categories' => $this->categories->all('name ASC'),
+            'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
+            'selectedTagIds' => [],
         ], 'admin');
     }
 
@@ -105,6 +114,7 @@ class PostController {
             return View::render('admin/posts/edit', [
                 'title' => 'New Post', 'activeNav' => 'posts', 'post' => Request::all(),
                 'categories' => $this->categories->all('name ASC'), 'errors' => $errors,
+                'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'), 'selectedTagIds' => [],
             ], 'admin');
         }
 
@@ -119,6 +129,7 @@ class PostController {
             'seo_title' => Request::input('seo_title'),
             'seo_description' => Request::input('seo_description'),
         ], (int) auth_user()['id']);
+        $this->posts->syncTagsFromEditor($id, (array) Request::input('tags', []), (string) Request::input('new_tags', ''));
 
         flash('success', 'Post created.');
         return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
@@ -133,6 +144,7 @@ class PostController {
             'activeNav' => 'posts',
             'post' => $post,
             'categories' => $this->categories->all('name ASC'),
+            'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
             'selectedTagIds' => array_column($this->posts->tagsFor($id), 'id'),
         ], 'admin');
         return null;
@@ -161,6 +173,7 @@ class PostController {
             'seo_title' => Request::input('seo_title'),
             'seo_description' => Request::input('seo_description'),
         ], (int) auth_user()['id']);
+        $this->posts->syncTagsFromEditor($id, (array) Request::input('tags', []), (string) Request::input('new_tags', ''));
 
         flash('success', 'Post updated.');
         return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
