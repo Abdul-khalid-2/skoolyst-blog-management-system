@@ -110,6 +110,20 @@ class PostService {
         return $ok;
     }
 
+    public function toApiArray(array $post): array {
+        return [
+            'id' => (int) $post['id'],
+            'title' => $post['title'],
+            'slug' => $post['slug'],
+            'excerpt' => $post['excerpt'],
+            'cover_image' => $post['cover_image'],
+            'category_id' => $post['category_id'] !== null ? (int) $post['category_id'] : null,
+            'published_date' => $post['published_date'],
+            'read_time_minutes' => (int) $post['read_time_minutes'],
+            'views' => (int) $post['views'],
+        ];
+    }
+
     private function syncTags(int $postId, array $tagIds): void {
         if (!$tagIds) return;
         $current = array_column($this->tags->forPost($postId), 'id');

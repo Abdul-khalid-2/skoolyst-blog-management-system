@@ -15,6 +15,7 @@ $router = new Router();
 // the `require` scope, same trick resources/views layouts use for $content) —
 // keeps a single Router/dispatch call in public/index.php.
 require __DIR__ . '/admin.php';
+require __DIR__ . '/api.php';
 
 $router->get('/', [PostController::class, 'home']);
 $router->get('/blog', [PostController::class, 'index']);

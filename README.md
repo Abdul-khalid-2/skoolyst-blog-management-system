@@ -485,6 +485,39 @@ Build versioned JSON endpoints in `routes/api.php` (likely read-only: list/show 
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 8 Deliverable — API Report
+
+**Status:** PASS
+
+**Completed:**
+- [x] Versioned JSON API under `routes/api.php` (registered onto the shared `Router`, same pattern as `routes/admin.php`): `GET /api/v1/posts`, `GET /api/v1/posts/{slug}`, `POST /api/v1/posts/{slug}/comments`, `GET /api/v1/categories`, `GET /api/v1/categories/{slug}`
+- [x] `ApiMiddleware`'s Phase-2 TODO filled in: Bearer-token auth against `blog_api_keys` (SHA-256 hash comparison, `revoked_at IS NULL`), touches `last_used_at` on every authenticated call, 401 JSON on a missing/invalid/revoked key
+- [x] `bin/create-api-key.php "Client Name"` — CLI to issue a key (no admin UI screen for this, matching the same reasoning as comment moderation in Phase 6: not one of the 12 mapped screens); the raw key is shown once, only its hash is ever stored
+- [x] Consistent JSON envelope: `{"data": ..., "meta": {...}}` for lists/detail, `{"error": ...}` (plus `"errors"` for field-level validation messages) for failures; `PostService::toApiArray()` added so the shape is identical whether a post comes from `/posts`, `/posts/{slug}`, or nested under `/categories/{slug}`
+- [x] All API input validated the same way as the web forms (`Core\Validator`) — a bad comment submission gets `422` with per-field messages, not a generic error
+- [x] CSRF is correctly skipped for `Api`-tagged routes (already handled by the Phase 4 Router logic) — Bearer-token auth is the right mechanism here, not a CSRF token
+- [x] Comment endpoint reuses `CommentService::submit()` from Phase 6 — API-submitted comments are `pending` too, same moderation rule as the web form
+- [x] **Verified end-to-end against real MariaDB + a live server**: created a key via the CLI, confirmed a missing/wrong Bearer token both return 401, a valid key lists/shows posts and categories correctly (including nested posts inside a category using the identical shape as the top-level list), submitted a comment via the API (valid → 201 pending, invalid → 422 with field errors), and confirmed `last_used_at` updates on each authenticated call
+
+**Files changed:**
+- New: `app/Controllers/Api/{PostController,CategoryController,CommentController}.php`, `routes/api.php`, `bin/create-api-key.php`
+- Modified: `app/Middleware/ApiMiddleware.php` (real auth), `app/Models/ApiKey.php` (`created_at` added to `$fillable`), `app/Services/PostService.php` (`toApiArray()`), `routes/web.php` (requires `api.php`)
+
+**Assumptions:**
+- No rate limiting was implemented — `blog_api_keys` has no request-count/window column to base it on, and it wasn't called out as required beyond "middleware/authentication where required." Flag it if you want real throttling; it'd need a small schema addition (a migration) to track it properly.
+- No admin UI for managing API keys (issue/list/revoke) — the CLI covers issuing; `ApiKey::revoke()` already exists in the model from Phase 5 if you want a screen for it later.
+- Kept the API read-only for posts/categories plus one write action (comments), matching what a public blog typically exposes; nothing here lets an API caller create/edit/delete posts — that still requires a logged-in session via the web dashboard.
+
+**Remaining:**
+- [ ] Phase 9 — Responsive & UI QA
+- [ ] Phase 10 — Final QA
+- [ ] Phase 11 — Documentation
+
+**Next Phase (Phase 9 — Responsive & UI QA):**
+Pass over every screen at mobile/tablet/desktop widths, checking the responsive rules from Phase 3 actually hold up now that real (and sometimes longer/messier) content is flowing through them.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 9 — Responsive & UI QA
 
 * Test every screen on mobile, tablet and desktop.

@@ -11,7 +11,7 @@ use Skoolyst\Core\Model;
  */
 class ApiKey extends Model {
     protected string $table = 'blog_api_keys';
-    protected array $fillable = ['name', 'key_hash', 'user_id'];
+    protected array $fillable = ['name', 'key_hash', 'user_id', 'created_at'];
 
     public function findActiveByHash(string $hash): ?array {
         $stmt = $this->pdo()->prepare("SELECT * FROM {$this->table} WHERE key_hash = :hash AND revoked_at IS NULL LIMIT 1");
