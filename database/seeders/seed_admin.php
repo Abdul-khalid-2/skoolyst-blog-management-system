@@ -16,5 +16,5 @@ if (User::findByEmail($email)) {
     exit;
 }
 
-User::create('Skoolyst Admin', $email, 'change-me-now', 'admin');
-echo "Created admin user: {$email} / change-me-now — change this password immediately.\n";
+User::create('Skoolyst Admin', $email, 'nmdp7788', 'admin');
+echo "Created admin user: {$email} / nmdp7788 — change this password immediately.\n";

@@ -8,6 +8,9 @@
     <a href="<?= url('/dashboard/categories') ?>" class="<?= ($activeNav ?? '') === 'categories' ? 'is-active' : '' ?>">Categories</a>
     <a href="<?= url('/dashboard/media') ?>" class="<?= ($activeNav ?? '') === 'media' ? 'is-active' : '' ?>">Media</a>
     <a href="<?= url('/dashboard/comments') ?>" class="<?= ($activeNav ?? '') === 'comments' ? 'is-active' : '' ?>">Comments</a>
+    <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
+      <a href="<?= url('/dashboard/users') ?>" class="<?= ($activeNav ?? '') === 'users' ? 'is-active' : '' ?>">Users</a>
+    <?php endif; ?>
   </nav>
   <div class="admin-sidebar-footer">
     <span class="admin-user-name"><?= clean(auth_user()['name'] ?? 'Account') ?></span>

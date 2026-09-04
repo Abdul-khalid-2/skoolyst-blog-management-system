@@ -54,6 +54,10 @@ class AuthService {
             return 'Those credentials do not match our records.';
         }
 
+        if ((int) ($user['active'] ?? 1) === 0) {
+            return 'This account has been deactivated. Contact an administrator.';
+        }
+
         $this->clearFailures();
         Session::regenerate();
         Session::put('user', User::forSession($user));

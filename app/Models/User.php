@@ -58,6 +58,17 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** Every account, for the admin-only Users management page. */
+    public static function all(): array {
+        $stmt = Database::connection()->query('SELECT * FROM blog_users ORDER BY role, name ASC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function delete(int $id): bool {
+        $stmt = Database::connection()->prepare('DELETE FROM blog_users WHERE id = :id');
+        return $stmt->execute(['id' => $id]);
+    }
+
     public static function touchLastLogin(int $id): void {
         $stmt = Database::connection()->prepare('UPDATE blog_users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);

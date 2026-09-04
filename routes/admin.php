@@ -10,11 +10,16 @@ use Skoolyst\Controllers\DashboardController;
 use Skoolyst\Controllers\MediaController;
 use Skoolyst\Controllers\PostController;
 use Skoolyst\Controllers\ProfileController;
+use Skoolyst\Controllers\UserController;
 
 $router->get('/dashboard', [DashboardController::class, 'index'], ['Staff']);
 
 $router->get('/dashboard/profile', [ProfileController::class, 'edit'], ['Staff']);
 $router->post('/dashboard/profile', [ProfileController::class, 'update'], ['Staff']);
+
+$router->get('/dashboard/users', [UserController::class, 'index'], ['Admin']);
+$router->post('/dashboard/users/{id}', [UserController::class, 'update'], ['Admin']);
+$router->post('/dashboard/users/{id}/delete', [UserController::class, 'destroy'], ['Admin']);
 
 $router->get('/dashboard/comments', [CommentController::class, 'adminIndex'], ['Staff']);
 $router->post('/dashboard/comments/{id}/approve', [CommentController::class, 'approve'], ['Staff']);
