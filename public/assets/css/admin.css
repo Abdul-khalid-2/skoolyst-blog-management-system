@@ -2,7 +2,7 @@
 .admin-body { height:100vh; overflow:hidden; margin:0; }
 .admin-shell { display:flex; height:100vh; overflow:hidden; }
 .admin-sidebar { width:240px; background:var(--skoolyst-navy); color:#CBD5E1; flex-shrink:0; padding:1.5rem 1rem; display:flex; flex-direction:column; overflow-y:auto; }
-.admin-sidebar-brand { color:var(--white); font-weight:800; margin-bottom:2rem; }
+.admin-sidebar-brand { display:block; color:var(--white); font-weight:800; margin-bottom:2rem; text-decoration:none; }
 .admin-sidebar-brand span { color:var(--skoolyst-cyan); }
 .admin-sidebar-nav { display:flex; flex-direction:column; gap:.35rem; flex:1; }
 .admin-sidebar-nav a { color:#CBD5E1; text-decoration:none; padding:.6rem .75rem; border-radius:var(--radius); font-weight:500; }
