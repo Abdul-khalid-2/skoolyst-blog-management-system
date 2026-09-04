@@ -76,7 +76,10 @@ img { max-width:100%; height:auto; }
 .hero-search .form-control { flex:1; }
 .post-grid, .stat-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin:1.5rem 0; }
 .newsletter { max-width:520px; margin-inline:auto; text-align:center; padding:2rem 0; }
-.newsletter form { display:flex; flex-wrap:wrap; gap:.5rem; }
+.newsletter form { display:flex; flex-wrap:wrap; align-items:stretch; gap:.5rem; }
+.newsletter form .form-group { flex:1; min-width:180px; margin-bottom:0; text-align:left; }
+.newsletter form .form-control { height:100%; }
+.newsletter .btn { flex-shrink:0; }
 .stat-value { font-size:1.75rem; font-weight:800; color:var(--skoolyst-blue); margin:0; }
 .stat-label { color:var(--muted); margin:.25rem 0 0; }
 
