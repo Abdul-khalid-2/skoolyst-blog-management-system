@@ -124,7 +124,7 @@ class PostController {
             'excerpt' => Request::input('excerpt'),
             'body' => Request::input('body'),
             'cover_image' => Request::input('cover_image'),
-            'category_id' => Request::input('category_id') ?: null,
+            'category_id' => $this->validCategoryId(Request::input('category_id')),
             'status' => Request::input('status'),
             'seo_title' => Request::input('seo_title'),
             'seo_description' => Request::input('seo_description'),
@@ -168,7 +168,7 @@ class PostController {
             'excerpt' => Request::input('excerpt'),
             'body' => Request::input('body'),
             'cover_image' => Request::input('cover_image'),
-            'category_id' => Request::input('category_id') ?: null,
+            'category_id' => $this->validCategoryId(Request::input('category_id')),
             'status' => Request::input('status'),
             'seo_title' => Request::input('seo_title'),
             'seo_description' => Request::input('seo_description'),
@@ -177,6 +177,12 @@ class PostController {
 
         flash('success', 'Post updated.');
         return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
+    }
+
+    /** Guards against a stale/tampered category_id (e.g. the category was deleted while the form was open) causing a DB-level FK error. */
+    private function validCategoryId(mixed $categoryId): ?int {
+        $categoryId = $categoryId ? (int) $categoryId : null;
+        return $categoryId && $this->categories->find($categoryId) ? $categoryId : null;
     }
 
     public function destroy(int $id): never {

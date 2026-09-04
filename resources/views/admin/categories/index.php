@@ -34,6 +34,6 @@ foreach ($categories as $c) {
     </form>
     <?php
     $modalBody = ob_get_clean();
-    component('modal', ['id' => 'edit-category-' . $c['id'], 'title' => 'Edit ' . clean($c['name']), 'body' => $modalBody]);
+    component('modal', ['id' => 'edit-category-' . $c['id'], 'title' => 'Edit ' . $c['name'], 'body' => $modalBody]);
 }
 ?>

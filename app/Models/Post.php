@@ -48,18 +48,50 @@ class Post extends Model {
         return (int) $stmt->fetchColumn();
     }
 
+    /** Excludes soft-deleted posts, matching blog_posts.deleted_at. */
+    public function where(array $conditions, ?string $orderBy = null, ?int $limit = null): array {
+        [$clause, $params] = $this->buildWhere($conditions);
+        $where = 'deleted_at IS NULL' . ($clause ? " AND {$clause}" : '');
+        $sql = "SELECT * FROM {$this->table} WHERE {$where}";
+        if ($orderBy) $sql .= " ORDER BY {$orderBy}";
+        if ($limit) $sql .= ' LIMIT ' . (int) $limit;
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /** Excludes soft-deleted posts, matching blog_posts.deleted_at. */
+    public function paginate(int $page = 1, int $perPage = 10, array $conditions = [], ?string $orderBy = null): array {
+        [$clause, $params] = $this->buildWhere($conditions);
+        $where = 'WHERE deleted_at IS NULL' . ($clause ? " AND {$clause}" : '');
+
+        $countStmt = $this->pdo()->prepare("SELECT COUNT(*) FROM {$this->table} {$where}");
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        $sql = "SELECT * FROM {$this->table} {$where}";
+        if ($orderBy) $sql .= " ORDER BY {$orderBy}";
+        $sql .= ' LIMIT :limit OFFSET :offset';
+
+        $stmt = $this->pdo()->prepare($sql);
+        foreach ($params as $key => $value) $stmt->bindValue($key, $value);
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (max(1, $page) - 1) * $perPage, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'total' => $total,
+            'page' => max(1, $page),
+            'perPage' => $perPage,
+            'totalPages' => (int) max(1, ceil($total / $perPage)),
+        ];
+    }
+
     /** Soft delete — sets deleted_at instead of removing the row. */
     public function delete(int|string $id): bool {
         $stmt = $this->pdo()->prepare("UPDATE {$this->table} SET deleted_at = NOW() WHERE id = :id");
         return $stmt->execute(['id' => $id]);
-    }
-
-    public function paginatePublished(int $page = 1, int $perPage = 10, ?int $categoryId = null): array {
-        return $this->paginateCustom(
-            ['status' => 'published'] + ($categoryId ? ['category_id' => $categoryId] : []),
-            $page,
-            $perPage
-        );
     }
 
     public function paginateForDashboard(int $page = 1, int $perPage = 15): array {

@@ -570,6 +570,66 @@ A holistic pass over the whole module — re-check every Controller/Service/Mode
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 10 Deliverable — Final QA Report
+
+**Status:** PASS WITH WARNINGS
+
+A holistic regression + security pass over the whole module, tested against a **real, dedicated local MariaDB database** (`skoolyst_blog_management`, freshly migrated from scratch) and a live `php -S` server driven with real HTTP requests (curl, cookie-jar sessions, multipart uploads) — not lint-only.
+
+**Environment fix (blocking, found first):** `.env`'s `DB_DATABASE` pointed at `skoolyst_teachers`, a large *shared* database belonging to unrelated Skoolyst modules (teachers/ads/etc. tables mixed in with a stray copy of this module's `blog_*` tables) — a direct violation of the blueprint's "each module owns its own database" rule. A second candidate, `skoolyst_blog`, turned out to belong to a genuinely separate sibling project (`Projects/skoolyst-blogs`) with its own older `.sql`-based migration history (`blog_migrations.batch` column didn't even exist — confirmed this was never this project's own schema). Neither was safe to reuse or drop. Created a new, dedicated `skoolyst_blog_management` database and repointed `.env` at it. **This is a local-only fix** (`.env` is gitignored) — flagging it clearly since it changes what a fresh `composer install && php bin/migrate.php` connects to on this machine.
+
+**Completed:**
+- [x] **Migrations**: fresh `php bin/migrate.php` against the new empty database created all 11 tables correctly; re-running is a no-op; `php bin/migrate.php rollback` cleanly drops everything in one reversed batch and `migrate` rebuilds it identically — full round-trip verified
+- [x] **Auth/authorization**: unauthenticated `/dashboard` → 302 to `/login`; wrong password → inline error, no session; 5 failed logins → 6th blocked with the lockout message (still blocked on the *correct* password too, confirming it's a real lockout not just a bad-password message); correct login → session + redirect; `/logout` → session cleared, `/dashboard` protected again
+- [x] **CSRF**: every state-changing web route tested with the token stripped — all correctly rejected (redirect, no DB write), confirmed by row counts before/after
+- [x] **Full CRUD verified with real DB state checks** (not just HTTP status codes): category create/edit (color preserved through the color-less edit modal, per Phase 7's fix — still holds), post create with new tags (tags created + attached in `blog_post_tags`), post edit (tag pre-check confirmed), soft-delete (row survives with `deleted_at` set, disappears from `find`/`findBySlug`), media upload → served → deleted (file removed from disk, `blog_media` row removed), comment submission (public form, always lands as `pending`), audit log correctly recording every action
+- [x] **API**: missing/wrong Bearer token → 401; valid key lists/shows posts/categories in the documented envelope; comment endpoint validates (422) and creates (201) correctly; `last_used_at` updates
+- [x] **Validation/security spot checks**: empty required fields correctly rejected (no row created); HTML/script-bearing post titles render fully escaped everywhere (title, meta tags, OG tags, listings) — no stored XSS in any escaped field; awkward content (long titles, `<img>`/`<table>` in post body) still renders inside the Phase 9 overflow guards
+- [x] **Dead-code / structure audit** (delegated to a read-only sub-agent, findings independently verified): Controllers confirmed thin everywhere; all raw SQL is parameterized (no interpolated user input); all 29 views are `.php`; every user-controllable field in the views is escaped via `clean()` except `post.body`, which is intentionally raw (trusted author HTML, same trust model as Phase 4's internally-provisioned accounts)
+
+**Bugs found and fixed this phase:**
+1. **Soft-deleted posts leaked into public listings/API** — `PostService::forHomepage()` and the non-search branch of `publicList()` used the generic `Model::where()`/`Model::paginate()`, which (unlike `Post::find()`/`findBySlug()`/`count()`/`delete()`, all already overridden for this) never excluded `deleted_at`. A deleted post kept appearing on `/`, `/blog`, and `GET /api/v1/posts` even though its own page correctly 404'd. Fixed by overriding `Post::where()` and `Post::paginate()` to always exclude soft-deleted rows, matching the pattern the rest of the model already follows. Verified: the deleted post disappeared from all three surfaces, `api.meta.total` dropped correctly, and the still-live post was unaffected.
+2. **Uncaught exceptions leaked raw stack traces (including full server file paths) to the browser as a `200 OK`** — reproduced via a tampered `category_id` on post create, which threw an uncaught `PDOException` (FK constraint violation) straight past `public/index.php` with no handler; the built-in PHP server rendered it as plain HTML source. Fixed by wrapping the dispatch call in `public/index.php` in a try/catch that logs the full exception to `storage/logs/app.log` (gitignored) and renders the already-existing `errors/500` view (or a JSON `{"error":"Server error"}` for API/AJAX requests) with a real `500` status — no more information disclosure, and it now degrades the same way the 404 path already did.
+3. **A stale/tampered `category_id` (e.g. the category was deleted while a post's edit tab was still open) hit that same exception path** — added a small guard (`PostController::validCategoryId()`) that silently drops an invalid `category_id` to `null` instead of ever reaching the DB, so it's now a clean save rather than a crash even with the safety net from #2 in place.
+4. **Double-escaped category name in the edit-category modal title** — `resources/views/admin/categories/index.php` pre-escaped the name with `clean()` before handing it to the `modal` component, which escapes `$title` itself; a category named e.g. "Tips & Tricks" rendered as "Tips &amp;amp; Tricks". Fixed by passing the raw name through (the component owns escaping, per its own docblock contract).
+5. **Removed dead code**: `Post::paginatePublished()` was already unused before this phase and became fully redundant once fix #1 made the base `paginate()` exclude soft-deletes too — deleted it rather than leave two near-identical methods around.
+
+**Reviewed, left as-is (intentional, not oversights):**
+- `AdminMiddleware` (role === 'admin' check, built Phase 4) is implemented but not attached to any route — every `/dashboard/*` route only requires `['Auth']`, so any authenticated user (regardless of `admin`/`editor`/`author` role) can reach every admin screen. Its own docblock scopes it to "e.g. user/settings management," and no such screen exists yet (nor does anything provision non-admin accounts — only `seed_admin.php`, which is admin-only). Documenting this as a known, currently-inert extension point rather than wiring it to routes on my own judgment, since that would be a real authorization-behavior change beyond "final QA."
+- `Comment::pending()` / `CommentService::pending()`/`approve()`/`reject()` and `ApiKey::revoke()` are unused — both were explicitly built ahead of screens Phase 6/8 deferred on purpose (comment moderation, API key management UI), not accidental leftovers.
+- Duplicated `slugify()` logic between `PostService`/`CategoryService`, and repeated constructor/audit-log boilerplate across the four content Services — real but cosmetic duplication; left alone rather than refactoring mid-QA without being asked, per the "don't refactor beyond what's needed" rule.
+- `MediaController::upload()` reads `$_FILES['file']` directly instead of through `Request` (which has no file-upload accessor) — a structural convention gap, not a bug; upload/delete were both verified working correctly.
+
+**Files changed:**
+- `app/Models/Post.php` (soft-delete-safe `where()`/`paginate()` overrides; removed dead `paginatePublished()`)
+- `app/Controllers/PostController.php` (`validCategoryId()` guard on create/update)
+- `public/index.php` (global exception handler → logged + themed 500 / JSON error)
+- `resources/views/admin/categories/index.php` (fixed double-escaped modal title)
+- `.env` (local-only, gitignored: `DB_DATABASE` repointed from the shared/wrong database to a dedicated `skoolyst_blog_management`)
+
+**Tests / Checks performed:**
+- Fresh migrate → rollback → re-migrate round-trip against real MariaDB
+- Full HTTP-level regression via curl with real cookie-jar sessions: every public route, every admin route (authenticated and not), every API route (keyed and not), covering all CRUD verbs across posts/categories/media/comments
+- Every mutation cross-checked against actual MySQL row state (not just HTTP status codes) — including the two bugs above, which only showed up by checking the database/response body rather than trusting a `200`/`302`
+- `php -l` on every changed file; full server log reviewed for warnings/notices/deprecations across the entire session — none found, before or after fixes
+- Read-only sub-agent audit of Controllers-thin-ness, dead code, duplicate logic, raw-SQL injection surface, and view-layer output escaping across the whole `app/` and `resources/views/` trees
+
+**Warnings / Issues:**
+- Status is PASS WITH WARNINGS rather than a clean PASS because of the two "reviewed, left as-is" items with real (if currently low-impact) implications: the inert `AdminMiddleware` means there's no actual admin/editor/author privilege separation despite the schema supporting it, and there's genuinely no way yet to create a non-admin account to even test that separation.
+- No headless-browser visual verification (same sandbox limitation noted in Phase 9) — this phase is HTTP/DB-level correctness, not pixel QA.
+
+**Assumptions:**
+- Treated "remove duplicate/dead code" as removing genuinely accidental dead code, not intentionally-deferred forward-looking API surface that prior phase reports already explained — see the "reviewed, left as-is" list above for the reasoning on each.
+- Did not wire `AdminMiddleware` into any route myself, since that changes real authorization behavior (who can do what) rather than fixing a defect — flag if you'd like it attached to specific admin-only routes once there's a way to create non-admin accounts.
+
+**Remaining:**
+- [ ] Phase 11 — Documentation
+
+**Next Phase (Phase 11 — Documentation):**
+Write up setup/install steps (including the corrected `.env` database-per-module guidance this phase surfaced), database configuration, routes/API reference, and a tour of the module's Controllers/Services/Models — then mark every checklist item in this README `[x]`.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 11 — Documentation
 
 * Update README.
