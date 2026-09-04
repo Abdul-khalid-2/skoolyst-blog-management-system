@@ -1,8 +1,9 @@
 <?php
 /** Create/edit post form. $post (null when creating), $categories, $selectedTagIds, $errors from PostController. */
 $isEdit = !empty($post['id']);
+$coverImageTab = !empty($post['cover_image']) ? 'url' : 'upload';
 ?>
-<form method="post" action="<?= $isEdit ? url('/dashboard/posts/' . $post['id']) : url('/dashboard/posts') ?>" class="post-editor">
+<form method="post" action="<?= $isEdit ? url('/dashboard/posts/' . $post['id']) : url('/dashboard/posts') ?>" class="post-editor" enctype="multipart/form-data">
   <?= csrf_field() ?>
   <div class="post-editor-grid">
     <div class="post-editor-main">
@@ -38,7 +39,28 @@ $isEdit = !empty($post['id']);
               'value' => $post['category_id'] ?? '',
               'options' => ['' => '— None —'] + array_column($categories, 'name', 'id'),
           ]); ?>
-          <?php component('input', ['name' => 'cover_image', 'label' => 'Cover Image URL', 'value' => $post['cover_image'] ?? '']); ?>
+          <div class="form-group cover-image-field" data-tabs>
+            <label>Cover Image</label>
+            <div class="cover-tab-buttons">
+              <button type="button" class="btn btn-sm btn-outline<?= $coverImageTab === 'upload' ? ' is-active' : '' ?>" data-tab-target="upload">Upload Image</button>
+              <button type="button" class="btn btn-sm btn-outline<?= $coverImageTab === 'url' ? ' is-active' : '' ?>" data-tab-target="url">Image URL</button>
+            </div>
+
+            <div data-tab-panel="upload"<?= $coverImageTab !== 'upload' ? ' hidden' : '' ?>>
+              <input type="file" name="cover_image_file" class="form-control" accept="image/*">
+              <?php foreach ((array) ($errors['cover_image_file'] ?? []) as $msg): ?>
+                <p class="form-error"><?= clean($msg) ?></p>
+              <?php endforeach; ?>
+            </div>
+
+            <div data-tab-panel="url"<?= $coverImageTab !== 'url' ? ' hidden' : '' ?>>
+              <input type="text" name="cover_image" class="form-control" value="<?= clean($post['cover_image'] ?? '') ?>" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <?php if (!empty($post['cover_image'])): ?>
+              <p class="stat-label">Current: <img src="<?= clean($post['cover_image']) ?>" alt="" style="height:32px;vertical-align:middle;border-radius:4px;margin-left:.4rem"></p>
+            <?php endif; ?>
+          </div>
 
           <div class="form-group">
             <label>Tags</label>

@@ -8,7 +8,9 @@ use Skoolyst\Core\Response;
 use Skoolyst\Core\Validator;
 use Skoolyst\Core\View;
 use Skoolyst\Models\Category;
+use Skoolyst\Models\Media;
 use Skoolyst\Services\CommentService;
+use Skoolyst\Services\MediaService;
 use Skoolyst\Services\PostService;
 
 class PostController {
@@ -16,6 +18,7 @@ class PostController {
         private PostService $posts = new PostService(),
         private CommentService $comments = new CommentService(),
         private Category $categories = new Category(),
+        private MediaService $media = new MediaService(),
     ) {}
 
     public function home(): void {
@@ -123,6 +126,9 @@ class PostController {
             'status' => 'required|in:draft,published',
         ]);
 
+        [$coverImage, $coverError] = $this->resolveCoverImage((string) Request::input('cover_image', ''));
+        if ($coverError) $errors['cover_image_file'][] = $coverError;
+
         if ($errors) {
             flash('error', 'Please fix the errors below.');
             return View::render('admin/posts/edit', [
@@ -137,7 +143,7 @@ class PostController {
             'slug' => trim((string) Request::input('slug', '')),
             'excerpt' => Request::input('excerpt'),
             'body' => Request::input('body'),
-            'cover_image' => Request::input('cover_image'),
+            'cover_image' => $coverImage,
             'category_id' => $this->validCategoryId(Request::input('category_id')),
             'status' => Request::input('status'),
             'seo_title' => Request::input('seo_title'),
@@ -176,6 +182,9 @@ class PostController {
             'status' => 'required|in:draft,published',
         ]);
 
+        [$coverImage, $coverError] = $this->resolveCoverImage((string) Request::input('cover_image', $existing['cover_image'] ?? ''));
+        if ($coverError) $errors['cover_image_file'][] = $coverError;
+
         if ($errors) {
             flash('error', 'Please fix the errors below.');
             return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
@@ -186,7 +195,7 @@ class PostController {
             'slug' => trim((string) Request::input('slug', '')),
             'excerpt' => Request::input('excerpt'),
             'body' => Request::input('body'),
-            'cover_image' => Request::input('cover_image'),
+            'cover_image' => $coverImage,
             'category_id' => $this->validCategoryId(Request::input('category_id')),
             'status' => Request::input('status'),
             'seo_title' => Request::input('seo_title'),
@@ -196,6 +205,26 @@ class PostController {
 
         flash('success', 'Post updated.');
         return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
+    }
+
+    /**
+     * The cover image can come from either tab in the form: an uploaded file (takes
+     * priority when present) or a pasted URL. An uploaded file goes through the same
+     * secure, WebP-converting pipeline as the Media Library and is tracked there too.
+     * @return array{0: string, 1: ?string} [cover image URL, upload error message or null]
+     */
+    private function resolveCoverImage(string $urlInput): array {
+        $file = $_FILES['cover_image_file'] ?? null;
+        if (empty($file['name'])) {
+            return [trim($urlInput), null];
+        }
+
+        try {
+            $mediaId = $this->media->upload($file, (int) auth_user()['id']);
+            return [(new Media())->find($mediaId)['url'], null];
+        } catch (\RuntimeException $e) {
+            return [trim($urlInput), $e->getMessage()];
+        }
     }
 
     /** Guards against a stale/tampered category_id (e.g. the category was deleted while the form was open) causing a DB-level FK error. */

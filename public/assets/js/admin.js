@@ -43,6 +43,22 @@ document.addEventListener('click', function (e) {
     return;
   }
 
+  // Simple tab toggle, e.g. the post editor's Upload Image / Image URL switch.
+  var tabBtn = e.target.closest('[data-tab-target]');
+  if (tabBtn) {
+    var tabGroup = tabBtn.closest('[data-tabs]');
+    if (tabGroup) {
+      var target = tabBtn.getAttribute('data-tab-target');
+      tabGroup.querySelectorAll('[data-tab-target]').forEach(function (btn) {
+        btn.classList.toggle('is-active', btn === tabBtn);
+      });
+      tabGroup.querySelectorAll('[data-tab-panel]').forEach(function (panel) {
+        panel.hidden = panel.getAttribute('data-tab-panel') !== target;
+      });
+    }
+    return;
+  }
+
   if (e.target.closest('[data-sidebar-toggle]')) {
     document.querySelector('[data-sidebar]')?.classList.toggle('is-open');
     document.querySelector('[data-sidebar-backdrop]')?.classList.toggle('is-open');

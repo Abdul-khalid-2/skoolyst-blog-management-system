@@ -9,8 +9,7 @@
     <?php if (empty($posts)): ?>
       <?php component('empty-state', ['title' => 'No articles in this category yet']); ?>
     <?php else: foreach ($posts as $post): ob_start(); ?>
-      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
-      <p><?= clean($post['excerpt'] ?? '') ?></p>
+      <?php component('post-card-body', ['post' => $post]); ?>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; endif; ?>
   </div>

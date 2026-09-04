@@ -19,8 +19,7 @@
       <h2>You might also like</h2>
       <div class="post-grid">
         <?php foreach ($related as $relatedPost): ob_start(); ?>
-          <h3><a href="<?= url('/post/' . $relatedPost['slug']) ?>"><?= clean($relatedPost['title']) ?></a></h3>
-          <p><?= clean($relatedPost['excerpt'] ?? '') ?></p>
+          <?php component('post-card-body', ['post' => $relatedPost]); ?>
           <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
         <?php endforeach; ?>
       </div>

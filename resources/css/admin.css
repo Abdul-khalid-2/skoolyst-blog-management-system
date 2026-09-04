@@ -34,6 +34,8 @@
 .post-editor-side .card { margin-bottom:1.25rem; }
 .post-editor-side .card:last-child { margin-bottom:0; }
 .post-editor-side .card-body .form-group:last-child { margin-bottom:0; }
+.cover-tab-buttons { display:flex; gap:.5rem; margin-bottom:.5rem; }
+.cover-tab-buttons .btn.is-active { background:var(--skoolyst-blue); border-color:var(--skoolyst-blue); color:var(--white); }
 #field-body { min-height:280px; }
 @media (max-width:900px) {
   .post-editor-grid { grid-template-columns:1fr; }

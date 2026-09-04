@@ -19,8 +19,7 @@
     <?php if (empty($featured)): ?>
       <?php component('empty-state', ['title' => 'No posts yet', 'message' => 'Published posts will appear here.']); ?>
     <?php else: foreach ($featured as $post): ob_start(); ?>
-      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
-      <p><?= clean($post['excerpt'] ?? '') ?></p>
+      <?php component('post-card-body', ['post' => $post]); ?>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; endif; ?>
   </div>
@@ -31,8 +30,7 @@
   <h2>Latest Articles</h2>
   <div class="post-grid">
     <?php foreach ($latest as $post): ob_start(); ?>
-      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
-      <p><?= clean($post['excerpt'] ?? '') ?></p>
+      <?php component('post-card-body', ['post' => $post]); ?>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; ?>
   </div>

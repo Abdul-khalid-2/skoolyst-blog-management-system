@@ -26,8 +26,7 @@
     <?php if (empty($posts)): ?>
       <?php component('empty-state', ['title' => 'No articles found', 'message' => 'Try a different search or filter.']); ?>
     <?php else: foreach ($posts as $post): ob_start(); ?>
-      <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
-      <p><?= clean($post['excerpt'] ?? '') ?></p>
+      <?php component('post-card-body', ['post' => $post]); ?>
       <p><?php component('badge', ['label' => format_date($post['published_date'] ?? $post['created_at']), 'variant' => 'default']); ?></p>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; endif; ?>
