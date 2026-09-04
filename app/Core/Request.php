@@ -18,7 +18,21 @@ class Request {
         return $method;
     }
 
-    public static function uri(): string { return parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; }
+    /**
+     * Request path, relative to the app's own mount point. Apps served from a
+     * subdirectory (e.g. XAMPP htdocs/Projects/.../public) get a REQUEST_URI
+     * that includes that prefix; the Router matches routes like `/blog`
+     * against paths with it stripped, using APP_URL's own path as the prefix
+     * (the same source of truth the url() helper uses to build links).
+     */
+    public static function uri(): string {
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+        $base = rtrim(parse_url($_ENV['APP_URL'] ?? '', PHP_URL_PATH) ?? '', '/');
+        if ($base !== '' && str_starts_with($path, $base)) {
+            $path = substr($path, strlen($base));
+        }
+        return $path === '' ? '/' : $path;
+    }
 
     public static function isJson(): bool {
         return str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json');

@@ -4,6 +4,9 @@
  * $type = text|email|password|textarea|select, $name, $label (optional), $value (optional),
  * $placeholder (optional), $required (bool), $options (array<value=>label>, for select),
  * $error (string|array|null) — validation message(s) for this field.
+ * $autocomplete (optional) — e.g. "username"/"current-password" on a login form, so browser
+ * autofill can't misassign a saved credential to the wrong field (no autocomplete hint at all
+ * is what causes that).
  */
 $type ??= 'text';
 $value ??= old($name ?? '', '');
@@ -24,7 +27,7 @@ $fieldId = 'field-' . clean($name ?? uniqid());
       <?php endforeach; ?>
     </select>
   <?php else: ?>
-    <input type="<?= clean($type) ?>" id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" value="<?= clean($value) ?>" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?>>
+    <input type="<?= clean($type) ?>" id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" value="<?= clean($value) ?>" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?><?= !empty($autocomplete) ? ' autocomplete="' . clean($autocomplete) . '"' : '' ?>>
   <?php endif; ?>
 
   <?php foreach ($errorMessages as $msg): ?>
