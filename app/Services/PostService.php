@@ -64,8 +64,14 @@ class PostService {
         return $post;
     }
 
-    public function dashboardList(int $page = 1): array {
-        return $this->posts->paginateForDashboard($page, 15);
+    /** $authorId scopes the list to one author's own posts — see Post::paginateForDashboard(). */
+    public function dashboardList(int $page = 1, ?int $authorId = null): array {
+        return $this->posts->paginateForDashboard($page, 15, $authorId);
+    }
+
+    /** True if $userRole may manage $post — 'author' accounts may only manage their own posts; editor/admin manage all. */
+    public function canManage(array $post, int $userId, string $userRole): bool {
+        return $userRole !== 'author' || (int) $post['author_id'] === $userId;
     }
 
     public function tagsFor(int $postId): array {

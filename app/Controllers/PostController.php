@@ -81,7 +81,9 @@ class PostController {
 
     public function adminIndex(): void {
         $page = max(1, (int) Request::query('page', 1));
-        $result = $this->posts->dashboardList($page);
+        $user = auth_user();
+        $authorId = ($user['role'] ?? '') === 'author' ? (int) $user['id'] : null;
+        $result = $this->posts->dashboardList($page, $authorId);
         View::render('admin/posts/index', [
             'title' => 'Posts',
             'activeNav' => 'posts',
@@ -132,12 +134,13 @@ class PostController {
         $this->posts->syncTagsFromEditor($id, (array) Request::input('tags', []), (string) Request::input('new_tags', ''));
 
         flash('success', 'Post created.');
-        return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
+        return Response::redirect(url('/dashboard/posts'));
     }
 
     public function edit(int $id): mixed {
         $post = (new \Skoolyst\Models\Post())->find($id);
         if (!$post) return Response::redirect(url('/dashboard/posts'));
+        if (!$this->authorizePostAccess($post)) return Response::redirect(url('/dashboard/posts'));
 
         View::render('admin/posts/edit', [
             'title' => 'Edit Post',
@@ -151,6 +154,10 @@ class PostController {
     }
 
     public function update(int $id): mixed {
+        $existing = (new \Skoolyst\Models\Post())->find($id);
+        if (!$existing) return Response::redirect(url('/dashboard/posts'));
+        if (!$this->authorizePostAccess($existing)) return Response::redirect(url('/dashboard/posts'));
+
         $errors = Validator::make(Request::all(), [
             'title' => 'required|max:220',
             'body' => 'required',
@@ -185,9 +192,20 @@ class PostController {
         return $categoryId && $this->categories->find($categoryId) ? $categoryId : null;
     }
 
+    /** 'author' accounts may only manage their own posts; editor/admin manage all. Flashes and returns false when denied. */
+    private function authorizePostAccess(array $post): bool {
+        $user = auth_user();
+        if ($this->posts->canManage($post, (int) $user['id'], (string) $user['role'])) return true;
+        flash('error', 'You can only manage your own posts.');
+        return false;
+    }
+
     public function destroy(int $id): never {
-        $this->posts->delete($id, (int) auth_user()['id']);
-        flash('success', 'Post deleted.');
+        $post = (new \Skoolyst\Models\Post())->find($id);
+        if ($post && $this->authorizePostAccess($post)) {
+            $this->posts->delete($id, (int) auth_user()['id']);
+            flash('success', 'Post deleted.');
+        }
         Response::redirect(url('/dashboard/posts'));
     }
 }

@@ -30,6 +30,8 @@ $router->get('/media/{filename}', [MediaController::class, 'serve']);
 
 $router->get('/login', [AuthController::class, 'showLogin'], ['Guest']);
 $router->post('/login', [AuthController::class, 'login'], ['Guest']);
+$router->get('/signup', [AuthController::class, 'showSignup'], ['Guest']);
+$router->post('/signup', [AuthController::class, 'signup'], ['Guest']);
 $router->get('/logout', [AuthController::class, 'logout'], ['Auth']);
 
 return $router;

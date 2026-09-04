@@ -13,9 +13,15 @@
       <a href="<?= url('/about') ?>" class="<?= ($activeNav ?? '') === 'about' ? 'is-active' : '' ?>">About</a>
       <a href="<?= url('/contact') ?>" class="<?= ($activeNav ?? '') === 'contact' ? 'is-active' : '' ?>">Contact</a>
       <?php if (is_authenticated()): ?>
-        <a href="<?= url('/dashboard') ?>" class="btn btn-primary btn-sm">Dashboard</a>
+        <?php if (in_array(auth_user()['role'] ?? '', ['admin', 'editor', 'author'], true)): ?>
+          <a href="<?= url('/dashboard') ?>" class="btn btn-primary btn-sm">Dashboard</a>
+        <?php else: ?>
+          <span class="navbar-user"><?= clean(auth_user()['name'] ?? 'Account') ?></span>
+          <a href="<?= url('/logout') ?>" class="btn btn-outline btn-sm">Logout</a>
+        <?php endif; ?>
       <?php else: ?>
         <a href="<?= url('/login') ?>" class="btn btn-outline btn-sm">Login</a>
+        <a href="<?= url('/signup') ?>" class="btn btn-primary btn-sm">Sign up</a>
       <?php endif; ?>
     </nav>
   </div>

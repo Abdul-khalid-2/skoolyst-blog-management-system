@@ -13,6 +13,31 @@ class AuthService {
     private const MAX_ATTEMPTS = 5;
     private const LOCKOUT_SECONDS = 300;
 
+    /** Roles self-service signup is allowed to create. Admin/editor stay internally-provisioned (seeder/CLI only). */
+    private const PUBLIC_ROLES = ['author', 'reader'];
+
+    /**
+     * Register a new public-facing account and log it in immediately.
+     * Returns null on success, or an error message to show the user on failure.
+     */
+    public function register(string $name, string $email, string $password, string $role): ?string {
+        if (!in_array($role, self::PUBLIC_ROLES, true)) {
+            return 'Invalid account type.';
+        }
+        if (User::findByEmail($email)) {
+            return 'That email is already registered.';
+        }
+
+        $id = User::create($name, $email, $password, $role);
+        $user = User::findById($id);
+
+        Session::regenerate();
+        Session::put('user', User::forSession($user));
+        User::touchLastLogin($id);
+
+        return null;
+    }
+
     /**
      * Attempt to authenticate. Returns null on success, or an error message
      * to show the user on failure (also covers the lockout case).

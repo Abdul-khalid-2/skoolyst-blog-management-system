@@ -94,8 +94,9 @@ class Post extends Model {
         return $stmt->execute(['id' => $id]);
     }
 
-    public function paginateForDashboard(int $page = 1, int $perPage = 15): array {
-        return $this->paginateCustom([], $page, $perPage);
+    /** $authorId scopes the list to one author's own posts — used for the 'author' role, which may only manage its own posts. */
+    public function paginateForDashboard(int $page = 1, int $perPage = 15, ?int $authorId = null): array {
+        return $this->paginateCustom($authorId ? ['author_id' => $authorId] : [], $page, $perPage);
     }
 
     /** Like Model::paginate(), but always excludes soft-deleted rows. */

@@ -10,12 +10,11 @@ use Skoolyst\Core\View;
 use Skoolyst\Services\AuthService;
 
 /**
- * Authentication UI/API entry points: login, logout, register, password flows.
+ * Authentication UI/API entry points: login, logout, signup.
  *
- * Only login/logout are wired up in this phase — this module's dashboard is an
- * internally-provisioned CMS (accounts are created by an admin/seeder via
- * User::create()), not a public sign-up flow, so no register/forgot-password
- * screens are built here. Add them in a later phase if that changes.
+ * Public signup creates 'author' or 'reader' accounts only — admin/editor stay
+ * internally-provisioned (seeder/CLI), matching the dashboard's original design.
+ * No forgot-password screen is built yet; add one in a later phase if needed.
  */
 class AuthController {
     public function __construct(private AuthService $auth = new AuthService()) {}
@@ -46,6 +45,44 @@ class AuthController {
         }
 
         return Response::redirect(url('/dashboard'));
+    }
+
+    public function showSignup(): void {
+        View::render('auth/signup', [], 'auth');
+    }
+
+    public function signup(): mixed {
+        $errors = Validator::make(Request::all(), [
+            'name' => 'required|max:120',
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+            'password_confirmation' => 'required|confirmed:password',
+            'role' => 'required|in:author,reader',
+        ]);
+        if (isset($errors['password_confirmation'])) {
+            $errors['password_confirmation'] = ['Passwords do not match.'];
+        }
+
+        if ($errors) {
+            flash('error', 'Please fix the errors below and try again.');
+            return View::render('auth/signup', ['errors' => $errors], 'auth');
+        }
+
+        $failureMessage = $this->auth->register(
+            (string) Request::input('name'),
+            (string) Request::input('email'),
+            (string) Request::input('password'),
+            (string) Request::input('role')
+        );
+
+        if ($failureMessage !== null) {
+            flash('error', $failureMessage);
+            return View::render('auth/signup', [], 'auth');
+        }
+
+        $role = (string) Request::input('role');
+        flash('success', 'Welcome to Skoolyst Blog!');
+        return Response::redirect(url($role === 'reader' ? '/' : '/dashboard'));
     }
 
     public function logout(): never {

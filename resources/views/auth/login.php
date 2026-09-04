@@ -12,3 +12,4 @@ $title = 'Login';
   <?php component('input', ['type' => 'password', 'name' => 'password', 'label' => 'Password', 'required' => true, 'error' => $errors['password'] ?? null, 'value' => '', 'autocomplete' => 'current-password']); ?>
   <?php component('button', ['label' => 'Sign in', 'type' => 'submit']); ?>
 </form>
+<p class="auth-switch">Don't have an account? <a href="<?= url('/signup') ?>">Sign up</a></p>

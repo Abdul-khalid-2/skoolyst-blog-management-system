@@ -156,20 +156,20 @@ If a phase is **BLOCKED**, stop immediately and explain exactly what is blocking
 **Frontend source:** `skoolyst-blog-management-system` UI export (bolt.new build, Supabase-backed).
 
 #### Public site screens
-- [ ] `index.php` → Home — hero/search, featured + latest post grids, newsletter form
-- [ ] `blog.php` → Archive — search, category filter, sort, pagination
-- [ ] `category.php` → Category archive — title/description driven by `?cat=` slug
-- [ ] `post.php` → Single post — cover, body, tags, author block, share buttons, comments + comment form
-- [ ] `about.php` → Static content + team grid (bug: reads undefined global `MOCK_AUTHORS`)
-- [ ] `contact.php` → Contact form (currently client-side only, "demo — no real submission")
+- [x] `index.php` → Home — hero/search, featured + latest post grids, newsletter form
+- [x] `blog.php` → Archive — search, category filter, sort, pagination
+- [x] `category.php` → Category archive — title/description driven by `?cat=` slug
+- [x] `post.php` → Single post — cover, body, tags, author block, comments + comment form (**share buttons not built** — flagged non-blocking/cosmetic in Phase 7, still true)
+- [ ] `about.php` → Static content **only** — the team grid was never actually built (`resources/views/frontend/about.php` is one static paragraph; `PageController::about()` passes no author/team data at all). Not called out as a deliberate cut in any prior phase report — a real gap surfaced while updating this checklist, not a previously-known trade-off.
+- [x] `contact.php` → Contact form with real server-side handling (`PageController::submitContact`, validated, flashed)
 
 #### Dashboard screens (auth-gated)
-- [ ] `dashboard/login.php` → Login (Supabase auth today; demo credentials hard-coded in markup)
-- [ ] `dashboard/index.php` → Overview — stat cards, monthly views chart, recent posts table
-- [ ] `dashboard/posts.php` → Posts list/manage (bug: reads undefined global `MOCK_CATEGORIES`)
-- [ ] `dashboard/post-editor.php` → Create/edit post form (title, slug, cover, category, tags, status)
-- [ ] `dashboard/categories.php` → Categories CRUD (modal-driven)
-- [ ] `dashboard/media.php` → Media library
+- [x] `dashboard/login.php` → Login — real session auth, no hard-coded credentials (Phase 4)
+- [x] `dashboard/index.php` → Overview — stat cards, recent posts table (via `DashboardService`; no monthly-views chart was built — nothing in the schema/UI ever tracked that beyond `blog_post_views_daily`, which nothing renders yet)
+- [x] `dashboard/posts.php` → Posts list/manage
+- [x] `dashboard/post-editor.php` → Create/edit post form (title, slug, cover, category, tag picker, status)
+- [x] `dashboard/categories.php` → Categories CRUD (modal-driven edit, per the original ZIP's UI)
+- [x] `dashboard/media.php` → Media library (upload/serve/delete)
 
 #### Shared assets
 - `assets/css/style.css`, `assets/css/dashboard.css` — design tokens & styles
@@ -195,12 +195,12 @@ If a phase is **BLOCKED**, stop immediately and explain exactly what is blocking
 | dashboard/media.php | resources/views/admin/media/index.php (new) | admin | MediaController@index (new) | |
 
 #### Missing / inconsistent parts found in the source ZIP
-- [ ] `api.js` talks directly to Supabase from the browser (URL + anon key hard-coded) — must be fully replaced by our own PHP session-auth + `routes/api.php` endpoints; none of its Supabase calls carry over as-is.
-- [ ] Three leftover references to an undefined global from an earlier mock-data version: `MOCK_CATEGORIES` (blog.php, dashboard/posts.php) and `MOCK_AUTHORS` (about.php) — throws JS errors as shipped.
-- [ ] Contact form and comment form are demo-only (no real submission) — need real Controllers/Services.
-- [ ] Color tokens partially match the blueprint theme (`--primary:#0f4077` = blueprint Blue) but `--secondary:#4361ee` is not the blueprint's Neon Cyan/Gold — needs remapping in Phase 3.
-- [ ] No CSRF protection anywhere (expected for a static prototype) — required per blueprint rules.
-- [ ] Login page hard-codes demo credentials in the markup — remove once real auth is wired up.
+- [x] `api.js` talked directly to Supabase from the browser — fully replaced by our own PHP session-auth (web) + versioned `routes/api.php` (Bearer-token JSON API); no Supabase calls carried over
+- [x] `MOCK_CATEGORIES` / `MOCK_AUTHORS` undefined-global references — gone; zero references anywhere in `app/` (confirmed by grep in Phase 10)
+- [x] Contact form and comment form are demo-only — both have real Controllers/Services now (`PageController::submitContact`, `CommentController::store`, both validated server-side)
+- [x] Color tokens remapped to the blueprint theme in Phase 3 (`app.css` — Navy/Blue/Cyan/Gold tokens)
+- [x] CSRF protection added on every state-changing web route (Phase 4, enforced centrally in `Router::dispatch()`)
+- [x] Login page no longer hard-codes demo credentials — real session auth against `blog_users` (Phase 4)
 
 ## Phase 2 — Core Setup
 
@@ -640,6 +640,35 @@ A holistic regression + security pass over the whole module, tested against a **
 Write up setup/install steps (including the corrected `.env` database-per-module guidance this phase surfaced), database configuration, routes/API reference, and a tour of the module's Controllers/Services/Models — then mark every checklist item in this README `[x]`.
 
 **STOPPED — Waiting for your approval to continue.**
+
+### Addition (between Phase 10 and 11) — Public Signup & Reader Role
+
+Requested directly: `blog_users` only supported internally-provisioned admin/editor/author accounts (via seeder/CLI), with no public registration and no reader role. Added public signup, a `reader` role, and closed a real authorization gap this surfaced (the author/editor "manage own vs. all posts" split Phase 10 flagged as unbuilt).
+
+**Completed:**
+- [x] **`reader` role**: new migration `2026_09_04_000001_add_reader_role_to_blog_users.php` (`ALTER TABLE ... MODIFY COLUMN role ENUM('admin','editor','author','reader')`) — run against the real local `skoolyst_blog_management` database, confirmed via `SHOW COLUMNS`
+- [x] **Public signup** (`GET`/`POST /signup`, Guest-only): `AuthService::register()` creates `author` or `reader` accounts only — admin/editor stay internally-provisioned, matching the dashboard's existing design intent. Rejects a duplicate email with a clean inline error (checked proactively via `User::findByEmail`, not just relying on the DB's unique constraint) and validates a `password_confirmation` match. Logs the new account in immediately (session regenerated, same fixation-safe pattern as login) and redirects readers to `/` and authors straight to `/dashboard`.
+- [x] **`StaffMiddleware`**: new middleware (`admin`/`editor`/`author` only) replacing `Auth` on every `/dashboard/*` route in `routes/admin.php` — a reader hitting any dashboard URL (GET or POST, including a raw POST that bypasses the UI entirely) is redirected to `/` with a flash message, never reaching a Controller. `/logout` deliberately stays on plain `Auth` — readers can still log out.
+- [x] **Author-vs-editor permission split** (previously confirmed **not** to exist during Phase 10's audit): `PostService::canManage()` — an `author` may only edit/update/delete their **own** posts; `editor`/`admin` manage all, unchanged. `PostController::adminIndex()` now scopes the posts list itself to `auth_user()['id']` when the viewer is an author (via `Post::paginateForDashboard($page, $perPage, $authorId)`), so an author's dashboard only ever lists their own work rather than showing everything with silently-broken edit links.
+- [x] **Navbar**: guests get Login + Sign up; staff (admin/editor/author) get the Dashboard button as before; readers get their name + a Logout link instead of a Dashboard button they can't use.
+- [x] `resources/views/auth/signup.php` (name, email, password, confirmation, an account-type select limited to Reader/Author) + a "Sign up"/"Sign in" cross-link between it and the login page.
+
+**Files changed:**
+- New: `database/migrations/2026_09_04_000001_add_reader_role_to_blog_users.php`, `app/Middleware/StaffMiddleware.php`, `resources/views/auth/signup.php`
+- Modified: `app/Services/AuthService.php` (`register()`), `app/Controllers/AuthController.php` (`showSignup`/`signup`), `routes/web.php` (signup routes), `routes/admin.php` (`Auth` → `Staff` on all dashboard routes), `app/Models/Post.php` (`paginateForDashboard` gained an optional `$authorId` scope), `app/Services/PostService.php` (`canManage()`, `dashboardList()` scoping), `app/Controllers/PostController.php` (ownership checks on `adminIndex`/`edit`/`update`/`destroy`), `resources/views/components/navbar.php`, `resources/views/auth/login.php`, `resources/css/app.css` (+ mirrored `public/assets/css/app.css`)
+
+**Tests performed (real local MySQL + live server, not lint-only):**
+- Migration applied to the real DB; `SHOW COLUMNS` confirmed the 4-value enum
+- Signed up as a **reader**: landed on `/`, not `/dashboard`; `GET /dashboard` → 302 to `/` with "The dashboard is for staff accounts only."; a raw `POST /dashboard/categories` (bypassing the UI entirely) also 302'd and created nothing (checked the DB directly); navbar showed Logout, not Dashboard; reader could still comment on a post (lands `pending`, same as anonymous)
+- Signed up as an **author**: landed straight on `/dashboard`; created a post (owned by their own `author_id`); their own `/dashboard/posts` list showed only that post; attempting `/dashboard/posts/{id}/edit` on a different, pre-existing post 302'd with "You can only manage your own posts." and did not render the edit form
+- Logged in as **admin** and as a separately-provisioned **editor** (created via `User::create()`, matching the "internally-provisioned" design — no self-service path to those roles, correctly): both saw the author's post in their full list and could open its edit page (200, not redirected) — confirming the split is author-only, not blanket-restrictive
+- Duplicate-email signup correctly rejected inline ("That email is already registered.") without hitting the DB's unique-constraint error path; mismatched `password`/`password_confirmation` correctly rejected ("Passwords do not match.")
+- Full server log reviewed across every request in this session — no PHP warnings/notices/errors
+
+**Assumptions:**
+- Signup only offers `author`/`reader` as account types — `admin`/`editor` remain seeder/CLI-provisioned, matching Phase 4's original "internally-provisioned CMS" design note. Flag if you actually want self-service editor signup too.
+- No email verification step — a signup logs the account in immediately, same trust level as the rest of this module's auth (no mail sending exists anywhere in this codebase yet).
+- Reader-specific public-site features beyond commenting (e.g. saved posts, a profile page) weren't requested and weren't built — "comment, etc." in the request was read as "whatever public-site actions already exist," not a request for new reader-only features.
 
 ## Phase 11 — Documentation
 

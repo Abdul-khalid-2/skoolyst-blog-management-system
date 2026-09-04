@@ -48,6 +48,7 @@ img { max-width:100%; height:auto; }
 .navbar-links { display:flex; align-items:center; gap:1.5rem; }
 .navbar-links a { color:#CBD5E1; text-decoration:none; font-weight:500; }
 .navbar-links a.is-active, .navbar-links a:hover { color:var(--white); }
+.navbar-user { color:var(--white); font-weight:600; font-size:.9rem; }
 .navbar-toggle { display:none; flex-direction:column; gap:4px; background:none; border:0; cursor:pointer; padding:6px; }
 .navbar-toggle span { width:22px; height:2px; background:var(--white); display:block; }
 @media (max-width:768px) {
@@ -134,9 +135,12 @@ textarea.form-control { min-height:120px; resize:vertical; }
 .auth-body { background:var(--skoolyst-navy); min-height:100vh; }
 .auth-layout { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
 .auth-card { background:var(--white); border-radius:var(--radius); padding:2.5rem; width:min(100%, 400px); box-shadow:var(--shadow); text-align:center; }
+.auth-back { display:inline-flex; align-items:center; gap:.35rem; font-size:.85rem; color:var(--muted); text-decoration:none; margin-bottom:1rem; }
+.auth-back:hover { color:var(--skoolyst-blue); }
 .auth-brand { font-weight:800; font-size:1.2rem; margin-bottom:1.5rem; }
 .auth-brand span { color:var(--skoolyst-blue); }
 .auth-card form { text-align:left; }
+.auth-switch { margin-top:1rem; font-size:.9rem; color:var(--muted); }
 
 /* ---- Phase 6 additions ---- */
 .archive-filters { display:flex; gap:.75rem; flex-wrap:wrap; margin:1.5rem 0; }
