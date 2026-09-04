@@ -16,30 +16,39 @@ class CommentController {
     // --- Admin ---
 
     public function adminIndex(): void {
-        $pending = $this->comments->pending();
-        $posts = new Post();
-        $rows = array_map(function ($c) use ($posts) {
-            $post = $posts->find((int) $c['post_id']);
-            return $c + ['post_title' => $post['title'] ?? 'Deleted post', 'post_slug' => $post['slug'] ?? null];
-        }, $pending);
+        $user = auth_user();
+        $authorId = ($user['role'] ?? '') === 'author' ? (int) $user['id'] : null;
 
         View::render('admin/comments/index', [
             'title' => 'Comments',
             'activeNav' => 'comments',
-            'comments' => $rows,
+            'comments' => $this->comments->pending($authorId),
         ], 'admin');
     }
 
     public function approve(int $id): mixed {
+        if (!$this->authorizeCommentAccess($id)) return Response::redirect(url('/dashboard/comments'));
         $this->comments->approve($id, (int) auth_user()['id']);
         flash('success', 'Comment approved.');
         return Response::redirect(url('/dashboard/comments'));
     }
 
     public function reject(int $id): mixed {
+        if (!$this->authorizeCommentAccess($id)) return Response::redirect(url('/dashboard/comments'));
         $this->comments->reject($id, (int) auth_user()['id']);
         flash('success', 'Comment rejected.');
         return Response::redirect(url('/dashboard/comments'));
+    }
+
+    /** 'author' accounts may only approve/reject comments on their own posts; editor/admin manage all. */
+    private function authorizeCommentAccess(int $id): bool {
+        $comment = $this->comments->findWithPostAuthor($id);
+        $user = auth_user();
+        if ($comment && $this->comments->canManage($comment, (int) $user['id'], (string) $user['role'])) {
+            return true;
+        }
+        flash('error', 'You can only manage comments on your own posts.');
+        return false;
     }
 
     // --- Public ---

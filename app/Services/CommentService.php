@@ -27,8 +27,18 @@ class CommentService {
         return $this->comments->approvedForPost($postId);
     }
 
-    public function pending(): array {
-        return $this->comments->pending();
+    /** $authorId, when given, restricts the list to comments on that author's own posts. */
+    public function pending(?int $authorId = null): array {
+        return $this->comments->pendingWithPost($authorId);
+    }
+
+    public function findWithPostAuthor(int $id): ?array {
+        return $this->comments->findWithPostAuthor($id);
+    }
+
+    /** True if $userRole may manage $comment — 'author' accounts may only manage comments on their own posts; editor/admin manage all. Mirrors PostService::canManage. */
+    public function canManage(array $comment, int $userId, string $userRole): bool {
+        return $userRole !== 'author' || (int) $comment['post_author_id'] === $userId;
     }
 
     public function approve(int $id, int $userId): bool {

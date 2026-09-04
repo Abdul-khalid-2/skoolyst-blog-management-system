@@ -22,4 +22,54 @@ class Comment extends Model {
     public function pending(): array {
         return $this->where(['status' => 'pending'], 'created_at DESC');
     }
+
+    /**
+     * Pending comments with their parent post's title/slug/author joined in.
+     * $authorId, when given, restricts results to comments on that author's own
+     * posts — the actual authorization boundary for the author role, not just a UI filter.
+     */
+    public function pendingWithPost(?int $authorId = null): array {
+        $where = ["c.status = 'pending'"];
+        $params = [];
+        if ($authorId !== null) {
+            $where[] = 'p.author_id = :author_id';
+            $params['author_id'] = $authorId;
+        }
+        return $this->rawQuery(
+            "SELECT c.*, p.title AS post_title, p.slug AS post_slug, p.author_id AS post_author_id
+             FROM {$this->table} c
+             INNER JOIN blog_posts p ON p.id = c.post_id
+             WHERE " . implode(' AND ', $where) . '
+             ORDER BY c.created_at DESC',
+            $params
+        );
+    }
+
+    /** Same author scoping as pendingWithPost(), but just the count — for the topbar notification badge. */
+    public function countPending(?int $authorId = null): int {
+        $where = ["c.status = 'pending'"];
+        $params = [];
+        if ($authorId !== null) {
+            $where[] = 'p.author_id = :author_id';
+            $params['author_id'] = $authorId;
+        }
+        return (int) $this->rawScalar(
+            "SELECT COUNT(*) FROM {$this->table} c
+             INNER JOIN blog_posts p ON p.id = c.post_id
+             WHERE " . implode(' AND ', $where),
+            $params
+        );
+    }
+
+    /** A single comment plus its parent post's author_id, for the approve/reject ownership check. */
+    public function findWithPostAuthor(int $id): ?array {
+        $rows = $this->rawQuery(
+            "SELECT c.*, p.author_id AS post_author_id
+             FROM {$this->table} c
+             INNER JOIN blog_posts p ON p.id = c.post_id
+             WHERE c.id = :id LIMIT 1",
+            ['id' => $id]
+        );
+        return $rows[0] ?? null;
+    }
 }

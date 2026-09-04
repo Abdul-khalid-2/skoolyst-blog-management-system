@@ -1,4 +1,8 @@
-<?php $pendingCommentsCount = (new \Skoolyst\Models\Comment())->count(['status' => 'pending']); ?>
+<?php
+$__topbarUser = auth_user();
+$__topbarAuthorId = ($__topbarUser['role'] ?? '') === 'author' ? (int) $__topbarUser['id'] : null;
+$pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbarAuthorId);
+?>
 <!doctype html>
 <html lang="en">
 <head>
