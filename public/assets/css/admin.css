@@ -1,6 +1,7 @@
 /* Admin-only additions. Reuse app.css variables; do not create a separate color system. */
-.admin-shell { display:flex; min-height:100vh; }
-.admin-sidebar { width:240px; background:var(--skoolyst-navy); color:#CBD5E1; flex-shrink:0; padding:1.5rem 1rem; display:flex; flex-direction:column; }
+.admin-body { height:100vh; overflow:hidden; margin:0; }
+.admin-shell { display:flex; height:100vh; overflow:hidden; }
+.admin-sidebar { width:240px; background:var(--skoolyst-navy); color:#CBD5E1; flex-shrink:0; padding:1.5rem 1rem; display:flex; flex-direction:column; overflow-y:auto; }
 .admin-sidebar-brand { color:var(--white); font-weight:800; margin-bottom:2rem; }
 .admin-sidebar-brand span { color:var(--skoolyst-cyan); }
 .admin-sidebar-nav { display:flex; flex-direction:column; gap:.35rem; flex:1; }
@@ -8,12 +9,12 @@
 .admin-sidebar-nav a.is-active, .admin-sidebar-nav a:hover { background:rgba(255,255,255,.08); color:var(--white); }
 .admin-sidebar-footer { border-top:1px solid rgba(255,255,255,.1); padding-top:1rem; display:flex; justify-content:space-between; align-items:center; font-size:.85rem; }
 .admin-logout { color:var(--skoolyst-cyan); text-decoration:none; }
-.admin-content { flex:1; display:flex; flex-direction:column; min-width:0; }
-.admin-topbar { display:flex; align-items:center; gap:1rem; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--white); }
+.admin-content { flex:1; display:flex; flex-direction:column; min-width:0; height:100vh; overflow:hidden; }
+.admin-topbar { display:flex; align-items:center; gap:1rem; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--white); flex-shrink:0; }
 .admin-page-title { margin:0; font-size:1.2rem; }
 .admin-sidebar-toggle { display:none; background:none; border:0; font-size:1.3rem; cursor:pointer; }
 .admin-main { padding:1.5rem; flex:1; }
-.admin-view { position:relative; flex:1; display:flex; flex-direction:column; min-height:0; }
+.admin-view { position:relative; flex:1; display:flex; flex-direction:column; min-height:0; overflow-y:auto; }
 .admin-view.is-loading .admin-main,
 .admin-view.is-loading > .alert { opacity:.4; pointer-events:none; }
 .admin-loader { position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; }
