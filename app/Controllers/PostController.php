@@ -72,6 +72,7 @@ class PostController {
             'category' => $category,
             'author' => $author,
             'tags' => $this->posts->tagsFor((int) $post['id']),
+            'related' => $this->posts->relatedTo($post, 3),
             'comments' => $this->comments->approvedForPost((int) $post['id']),
         ], 'frontend');
         return null;

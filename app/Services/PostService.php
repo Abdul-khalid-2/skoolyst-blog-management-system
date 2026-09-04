@@ -56,6 +56,39 @@ class PostService {
         return $this->posts->paginate($page, 12, $conditions, $sort === 'oldest' ? 'created_at ASC' : 'created_at DESC');
     }
 
+    /**
+     * Published posts to show alongside $post: same category first (newest first),
+     * topped up with the site's latest published posts if the category doesn't have
+     * enough on its own. Never includes $post itself or duplicates.
+     */
+    public function relatedTo(array $post, int $limit = 3): array {
+        $excludeId = (int) $post['id'];
+        $related = [];
+
+        if (!empty($post['category_id'])) {
+            $related = $this->posts->rawQuery(
+                "SELECT * FROM blog_posts WHERE status = 'published' AND deleted_at IS NULL
+                 AND category_id = :cat AND id != :id
+                 ORDER BY published_date DESC, created_at DESC LIMIT " . $limit,
+                ['cat' => $post['category_id'], 'id' => $excludeId]
+            );
+        }
+
+        if (count($related) < $limit) {
+            $excludeIds = array_merge([$excludeId], array_column($related, 'id'));
+            $placeholders = implode(',', array_fill(0, count($excludeIds), '?'));
+            $latest = $this->posts->rawQuery(
+                "SELECT * FROM blog_posts WHERE status = 'published' AND deleted_at IS NULL
+                 AND id NOT IN ({$placeholders})
+                 ORDER BY published_date DESC, created_at DESC LIMIT " . ($limit - count($related)),
+                $excludeIds
+            );
+            $related = array_merge($related, $latest);
+        }
+
+        return $related;
+    }
+
     public function bySlug(string $slug, bool $trackView = true): ?array {
         $post = $this->posts->findBySlug($slug);
         if ($post && $trackView) {

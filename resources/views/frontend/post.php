@@ -14,6 +14,19 @@
     <p class="post-tags"><?php foreach ($tags as $tag): component('badge', ['label' => $tag['name'], 'variant' => 'default']); endforeach; ?></p>
   <?php endif; ?>
 
+  <?php if (!empty($related)): ?>
+    <section class="related-posts">
+      <h2>You might also like</h2>
+      <div class="post-grid">
+        <?php foreach ($related as $relatedPost): ob_start(); ?>
+          <h3><a href="<?= url('/post/' . $relatedPost['slug']) ?>"><?= clean($relatedPost['title']) ?></a></h3>
+          <p><?= clean($relatedPost['excerpt'] ?? '') ?></p>
+          <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  <?php endif; ?>
+
   <section class="comments">
     <h2>Comments (<?= count($comments) ?>)</h2>
     <?php if (empty($comments)): ?>
