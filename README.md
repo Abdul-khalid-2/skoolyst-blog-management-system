@@ -526,6 +526,37 @@ Pass over every screen at mobile/tablet/desktop widths, checking the responsive 
 
 **CHECKPOINT → STOP AND REPORT**
 
+### Phase 9 Deliverable — Responsive & UI QA Report
+
+**Status:** PASS
+
+No real browser/screenshot tool is available in this environment (tried installing Puppeteer + Chromium; the browser binary download is blocked by the sandbox's network allowlist), so this pass is a structural CSS/HTML audit against the mobile/tablet/desktop breakpoints already established in Phase 3, stress-tested with deliberately awkward content (a 130-character post title, a long category name, and post body HTML containing a raw `<img>` and `<table>` — the kind of thing a real author might paste in) rather than a pixel-level visual check. Flagging this limitation directly rather than claiming a browser-verified pass.
+
+**Completed:**
+- [x] `.table-wrap { overflow-x:auto }` and `.table td { word-break:break-word }` are now unconditional (previously only applied under a `max-width:768px` media query) — a wide admin table can overflow just as easily on a mid-size tablet as on a phone
+- [x] Global `img { max-width:100%; height:auto }` added — guards against any image (post covers, and now arbitrary `<img>` tags pasted into a post body) overflowing its container regardless of the image's own dimensions
+- [x] `.post-body img/table/pre` given explicit overflow handling (`display:block; overflow-x:auto` for tables, `max-width:100%` for images/pre blocks) — user-authored post HTML can contain wide tables or code blocks that would otherwise blow out the layout
+- [x] `.hero-search` and `.newsletter form` given `flex-wrap:wrap` — previously unwrapped flex rows, fine down to ~480px but not defensively wrapped below that
+- [x] `.hero h1` sized down on mobile (2rem → 1.5rem) and `.admin-main` padding tightened (1.5rem → 1rem) under 768px
+- [x] Verified header/footer/sidebar: navbar hamburger collapse (<768px) and admin sidebar toggle (<900px) still fire correctly with real (not placeholder) nav data; footer's flex-wrap already handled long content fine, no change needed
+- [x] Re-ran the full page sweep (public + admin) with the deliberately-long test content above — every page still 200s, `post-body` correctly wraps the injected `<img>`/`<table>`, no layout-breaking markup found
+
+**Files changed:**
+- Modified: `resources/css/app.css` (+ mirrored to `public/assets/css/app.css`)
+
+**Assumptions:**
+- No headless-browser visual regression testing was possible here (see above) — if pixel-perfect verification across real devices matters before launch, that's worth doing manually or with BrowserStack/similar once this is deployed somewhere reachable.
+- Didn't touch `admin.css`'s sidebar/topbar rules — Phase 3's breakpoints there already held up fine against the longer test content.
+
+**Remaining:**
+- [ ] Phase 10 — Final QA
+- [ ] Phase 11 — Documentation
+
+**Next Phase (Phase 10 — Final QA):**
+A holistic pass over the whole module — re-check every Controller/Service/Model against the blueprint's own coding conventions, look for anything Phases 1–9 might have missed or left inconsistent, and a final full regression sweep before Phase 11 writes it all up.
+
+**STOPPED — Waiting for your approval to continue.**
+
 ## Phase 10 — Final QA
 
 * Test all routes.
