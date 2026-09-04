@@ -19,10 +19,19 @@ class CommentController {
         $user = auth_user();
         $authorId = ($user['role'] ?? '') === 'author' ? (int) $user['id'] : null;
 
+        // author_id is only ever honored as a *filter* when $authorId (the hard ownership
+        // scope) is null — an 'author' account can't widen its own view via the query string.
+        $filters = [
+            'search' => trim((string) Request::query('q', '')),
+            'author_id' => $authorId === null ? (string) Request::query('author_id', '') : '',
+        ];
+
         View::render('admin/comments/index', [
             'title' => 'Comments',
             'activeNav' => 'comments',
-            'comments' => $this->comments->pending($authorId),
+            'comments' => $this->comments->pending($authorId, $filters),
+            'filters' => $filters,
+            'authors' => $authorId === null ? \Skoolyst\Models\User::staffList() : [],
         ], 'admin');
     }
 

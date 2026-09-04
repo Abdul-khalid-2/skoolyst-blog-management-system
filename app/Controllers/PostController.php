@@ -83,13 +83,24 @@ class PostController {
         $page = max(1, (int) Request::query('page', 1));
         $user = auth_user();
         $authorId = ($user['role'] ?? '') === 'author' ? (int) $user['id'] : null;
-        $result = $this->posts->dashboardList($page, $authorId);
+
+        // author_id is only ever honored as a *filter* when $authorId (the hard ownership
+        // scope) is null — an 'author' account can't widen its own view via the query string.
+        $filters = [
+            'search' => trim((string) Request::query('q', '')),
+            'status' => (string) Request::query('status', ''),
+            'author_id' => $authorId === null ? (string) Request::query('author_id', '') : '',
+        ];
+
+        $result = $this->posts->dashboardList($page, $authorId, $filters);
         View::render('admin/posts/index', [
             'title' => 'Posts',
             'activeNav' => 'posts',
             'posts' => $result['data'],
             'page' => $result['page'],
             'totalPages' => $result['totalPages'],
+            'filters' => $filters,
+            'authors' => $authorId === null ? \Skoolyst\Models\User::staffList() : [],
         ], 'admin');
     }
 

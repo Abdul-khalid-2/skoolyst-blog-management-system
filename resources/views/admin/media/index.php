@@ -15,7 +15,7 @@
 component('table', [
     'headers' => ['Preview', 'Name', 'Size', 'Actions'],
     'rows' => array_map(function ($m) {
-        $actions = '<form method="post" action="' . url('/dashboard/media/' . $m['id'] . '/delete') . '" style="display:inline" data-confirm="Delete this file?">' . csrf_field() . '<button type="submit" class="btn-ghost">Delete</button></form>';
+        $actions = '<div class="admin-table-actions"><form method="post" action="' . url('/dashboard/media/' . $m['id'] . '/delete') . '" data-confirm="Delete this file?">' . csrf_field() . '<button type="submit" class="btn btn-sm btn-danger">Delete</button></form></div>';
         return ['<img src="' . clean($m['url']) . '" alt="" style="height:40px">', clean($m['name']), clean($m['size'] ?? ''), $actions];
     }, $items),
     'emptyMessage' => 'No files uploaded yet.',

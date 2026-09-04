@@ -27,9 +27,9 @@ class CommentService {
         return $this->comments->approvedForPost($postId);
     }
 
-    /** $authorId, when given, restricts the list to comments on that author's own posts. */
-    public function pending(?int $authorId = null): array {
-        return $this->comments->pendingWithPost($authorId);
+    /** $authorId, when given, restricts the list to comments on that author's own posts — see Comment::pendingWithPost(). */
+    public function pending(?int $authorId = null, array $filters = []): array {
+        return $this->comments->pendingWithPost($authorId, $filters);
     }
 
     public function findWithPostAuthor(int $id): ?array {

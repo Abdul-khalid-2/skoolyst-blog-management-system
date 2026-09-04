@@ -25,16 +25,25 @@ class Comment extends Model {
 
     /**
      * Pending comments with their parent post's title/slug/author joined in.
-     * $authorId, when given, restricts results to comments on that author's own
-     * posts — the actual authorization boundary for the author role, not just a UI filter.
+     * $authorId, when given, restricts results to comments on that author's own posts — the
+     * actual authorization boundary for the author role, not just a UI filter, and always wins
+     * over $filters['author_id']. $filters (optional): 'author_id' (admin/editor only — narrows
+     * to one author's posts) and 'search' (matches comment body or commenter name).
      */
-    public function pendingWithPost(?int $authorId = null): array {
+    public function pendingWithPost(?int $authorId = null, array $filters = []): array {
         $where = ["c.status = 'pending'"];
         $params = [];
-        if ($authorId !== null) {
+
+        $scopeAuthorId = $authorId ?? (!empty($filters['author_id']) ? (int) $filters['author_id'] : null);
+        if ($scopeAuthorId !== null) {
             $where[] = 'p.author_id = :author_id';
-            $params['author_id'] = $authorId;
+            $params['author_id'] = $scopeAuthorId;
         }
+        if (!empty($filters['search'])) {
+            $where[] = '(c.body LIKE :search OR c.author_name LIKE :search)';
+            $params['search'] = '%' . $filters['search'] . '%';
+        }
+
         return $this->rawQuery(
             "SELECT c.*, p.title AS post_title, p.slug AS post_slug, p.author_id AS post_author_id
              FROM {$this->table} c

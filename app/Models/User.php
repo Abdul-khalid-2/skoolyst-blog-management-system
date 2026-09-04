@@ -50,6 +50,14 @@ class User {
         return $stmt->execute($data);
     }
 
+    /** id/name of every staff account (admin/editor/author), for the dashboard's author filter dropdowns. */
+    public static function staffList(): array {
+        $stmt = Database::connection()->query(
+            "SELECT id, name FROM blog_users WHERE role IN ('admin','editor','author') ORDER BY name ASC"
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public static function touchLastLogin(int $id): void {
         $stmt = Database::connection()->prepare('UPDATE blog_users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);

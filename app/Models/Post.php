@@ -94,15 +94,34 @@ class Post extends Model {
         return $stmt->execute(['id' => $id]);
     }
 
-    /** $authorId scopes the list to one author's own posts — used for the 'author' role, which may only manage its own posts. */
-    public function paginateForDashboard(int $page = 1, int $perPage = 15, ?int $authorId = null): array {
-        return $this->paginateCustom($authorId ? ['author_id' => $authorId] : [], $page, $perPage);
+    /**
+     * $authorId scopes the list to one author's own posts — used for the 'author' role, which
+     * may only manage its own posts, and always wins over $filters['author_id'] below.
+     * $filters (all optional): 'search' (title LIKE), 'status', and — only meaningful when
+     * $authorId is null, i.e. admin/editor — 'author_id' to narrow to one author's posts.
+     */
+    public function paginateForDashboard(int $page = 1, int $perPage = 15, ?int $authorId = null, array $filters = []): array {
+        $conditions = [];
+        if ($authorId !== null) {
+            $conditions['author_id'] = $authorId;
+        } elseif (!empty($filters['author_id'])) {
+            $conditions['author_id'] = (int) $filters['author_id'];
+        }
+        if (!empty($filters['status'])) {
+            $conditions['status'] = $filters['status'];
+        }
+
+        return $this->paginateCustom($conditions, $page, $perPage, (string) ($filters['search'] ?? ''));
     }
 
-    /** Like Model::paginate(), but always excludes soft-deleted rows. */
-    private function paginateCustom(array $conditions, int $page, int $perPage): array {
+    /** Like Model::paginate(), but always excludes soft-deleted rows and supports a title search. */
+    private function paginateCustom(array $conditions, int $page, int $perPage, string $search = ''): array {
         [$clause, $params] = $this->buildWhere($conditions);
         $where = 'WHERE deleted_at IS NULL' . ($clause ? " AND {$clause}" : '');
+        if ($search !== '') {
+            $where .= ' AND title LIKE :search';
+            $params['search'] = '%' . $search . '%';
+        }
 
         $countStmt = $this->pdo()->prepare("SELECT COUNT(*) FROM {$this->table} {$where}");
         $countStmt->execute($params);

@@ -16,8 +16,10 @@
 component('table', [
     'headers' => ['Name', 'Slug', 'Actions'],
     'rows' => array_map(function ($c) {
-        $actions = '<button type="button" class="btn btn-outline btn-sm" data-modal-open="edit-category-' . $c['id'] . '">Edit</button> ';
-        $actions .= '<form method="post" action="' . url('/dashboard/categories/' . $c['id'] . '/delete') . '" style="display:inline" data-confirm="Delete this category?">' . csrf_field() . '<button type="submit" class="btn-ghost">Delete</button></form>';
+        $actions = '<div class="admin-table-actions">';
+        $actions .= '<button type="button" class="btn btn-sm btn-outline" data-modal-open="edit-category-' . $c['id'] . '">Edit</button>';
+        $actions .= '<form method="post" action="' . url('/dashboard/categories/' . $c['id'] . '/delete') . '" data-confirm="Delete this category?">' . csrf_field() . '<button type="submit" class="btn btn-sm btn-danger">Delete</button></form>';
+        $actions .= '</div>';
         return [clean($c['name']), clean($c['slug']), $actions];
     }, $categories),
     'emptyMessage' => 'No categories yet.',
