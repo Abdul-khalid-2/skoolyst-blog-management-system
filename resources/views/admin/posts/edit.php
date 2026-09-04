@@ -42,15 +42,17 @@ $isEdit = !empty($post['id']);
 
           <div class="form-group">
             <label>Tags</label>
-            <div class="tag-picker">
-              <?php foreach (($allTags ?? []) as $tag): ?>
-                <label class="tag-picker-option">
-                  <input type="checkbox" name="tags[]" value="<?= (int) $tag['id'] ?>"<?= in_array($tag['id'], $selectedTagIds ?? [], true) ? ' checked' : '' ?>>
-                  <?= clean($tag['name']) ?>
-                </label>
-              <?php endforeach; ?>
+            <div
+              class="tag-input"
+              data-tag-input
+              data-all-tags="<?= clean(json_encode(array_map(fn ($t) => ['id' => (int) $t['id'], 'name' => $t['name']], $allTags ?? []))) ?>"
+              data-selected-tags="<?= clean(json_encode(array_values(array_map('intval', $selectedTagIds ?? [])))) ?>"
+            >
+              <div class="tag-input-chips" data-tag-chips></div>
+              <input type="text" data-tag-search autocomplete="off" placeholder="Type to search or add a tag...">
+              <div class="tag-input-suggestions" data-tag-suggestions hidden></div>
+              <span data-tag-hidden></span>
             </div>
-            <input type="text" name="new_tags" class="form-control" placeholder="Add new tags, comma-separated">
           </div>
         </div>
       </div>

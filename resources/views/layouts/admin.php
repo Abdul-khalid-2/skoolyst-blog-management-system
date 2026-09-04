@@ -45,6 +45,7 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
 <script src="<?= url('assets/js/app.js') ?>"></script>
 <script src="<?= url('assets/js/admin.js') ?>"></script>
 <script src="<?= url('assets/js/admin-spa.js') ?>"></script>
+<script src="<?= url('assets/js/tag-input.js') ?>"></script>
 <?php if (!empty($extraJs)): ?><script src="<?= url($extraJs) ?>"></script><?php endif; ?>
 </body>
 </html>
