@@ -13,6 +13,13 @@
 .admin-page-title { margin:0; font-size:1.2rem; }
 .admin-sidebar-toggle { display:none; background:none; border:0; font-size:1.3rem; cursor:pointer; }
 .admin-main { padding:1.5rem; flex:1; }
+.admin-view { position:relative; flex:1; display:flex; flex-direction:column; min-height:0; }
+.admin-view.is-loading .admin-main,
+.admin-view.is-loading > .alert { opacity:.4; pointer-events:none; }
+.admin-loader { position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; }
+.admin-loader[hidden] { display:none; }
+.admin-spinner { width:34px; height:34px; border:3px solid var(--border); border-top-color:var(--skoolyst-blue); border-radius:50%; animation:admin-spin .7s linear infinite; }
+@keyframes admin-spin { to { transform:rotate(360deg); } }
 @media (max-width:900px) {
   .admin-sidebar { position:fixed; inset:0 auto 0 0; transform:translateX(-100%); transition:transform .2s; z-index:50; }
   .admin-sidebar.is-open { transform:translateX(0); }
