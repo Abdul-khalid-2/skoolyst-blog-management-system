@@ -56,6 +56,13 @@
     var newHeading = doc.querySelector('.admin-page-title');
     if (titleEl && newHeading) titleEl.textContent = newHeading.textContent;
 
+    // Notification badge / profile name live outside [data-spa-view], but can
+    // change as a result of the very action just submitted (e.g. approving a
+    // comment, renaming the account) — so re-sync them from the fetched page.
+    var newActions = doc.querySelector('.admin-topbar-actions');
+    var curActions = document.querySelector('.admin-topbar-actions');
+    if (newActions && curActions) curActions.innerHTML = newActions.innerHTML;
+
     var newUrl = new URL(finalUrl, window.location.href);
     document.querySelectorAll('.admin-sidebar-nav a').forEach(function (a) {
       var linkUrl = new URL(a.getAttribute('href'), window.location.href);

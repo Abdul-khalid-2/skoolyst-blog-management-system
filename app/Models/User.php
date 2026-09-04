@@ -41,6 +41,15 @@ class User {
         return (int) Database::connection()->lastInsertId();
     }
 
+    /** Update a user's own fillable fields (e.g. name, password — the password value passed in must already be hashed). */
+    public static function update(int $id, array $data): bool {
+        if (!$data) return false;
+        $set = implode(', ', array_map(fn ($c) => "{$c} = :{$c}", array_keys($data))) . ', updated_at = NOW()';
+        $data['id'] = $id;
+        $stmt = Database::connection()->prepare("UPDATE blog_users SET {$set} WHERE id = :id");
+        return $stmt->execute($data);
+    }
+
     public static function touchLastLogin(int $id): void {
         $stmt = Database::connection()->prepare('UPDATE blog_users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);

@@ -5,11 +5,20 @@ declare(strict_types=1);
 // (which requires this file) — see the note there for why.
 
 use Skoolyst\Controllers\CategoryController;
+use Skoolyst\Controllers\CommentController;
 use Skoolyst\Controllers\DashboardController;
 use Skoolyst\Controllers\MediaController;
 use Skoolyst\Controllers\PostController;
+use Skoolyst\Controllers\ProfileController;
 
 $router->get('/dashboard', [DashboardController::class, 'index'], ['Staff']);
+
+$router->get('/dashboard/profile', [ProfileController::class, 'edit'], ['Staff']);
+$router->post('/dashboard/profile', [ProfileController::class, 'update'], ['Staff']);
+
+$router->get('/dashboard/comments', [CommentController::class, 'adminIndex'], ['Staff']);
+$router->post('/dashboard/comments/{id}/approve', [CommentController::class, 'approve'], ['Staff']);
+$router->post('/dashboard/comments/{id}/reject', [CommentController::class, 'reject'], ['Staff']);
 
 $router->get('/dashboard/posts', [PostController::class, 'adminIndex'], ['Staff']);
 $router->get('/dashboard/posts/create', [PostController::class, 'create'], ['Staff']);

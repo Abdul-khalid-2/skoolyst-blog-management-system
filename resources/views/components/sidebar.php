@@ -7,6 +7,7 @@
     <a href="<?= url('/dashboard/posts') ?>" class="<?= ($activeNav ?? '') === 'posts' ? 'is-active' : '' ?>">Posts</a>
     <a href="<?= url('/dashboard/categories') ?>" class="<?= ($activeNav ?? '') === 'categories' ? 'is-active' : '' ?>">Categories</a>
     <a href="<?= url('/dashboard/media') ?>" class="<?= ($activeNav ?? '') === 'media' ? 'is-active' : '' ?>">Media</a>
+    <a href="<?= url('/dashboard/comments') ?>" class="<?= ($activeNav ?? '') === 'comments' ? 'is-active' : '' ?>">Comments</a>
   </nav>
   <div class="admin-sidebar-footer">
     <span class="admin-user-name"><?= clean(auth_user()['name'] ?? 'Account') ?></span>

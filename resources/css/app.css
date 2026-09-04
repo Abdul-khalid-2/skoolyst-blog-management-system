@@ -93,6 +93,7 @@ img { max-width:100%; height:auto; }
 .form-control:focus { outline:2px solid var(--skoolyst-cyan); outline-offset:1px; border-color:var(--skoolyst-blue); }
 textarea.form-control { min-height:120px; resize:vertical; }
 .form-error { color:#DC2626; font-size:.82rem; margin:.35rem 0 0; }
+.form-static { margin:0; padding:.7rem 0; color:var(--muted); }
 .has-error .form-control { border-color:#DC2626; }
 
 /* ---- Alerts ---- */
