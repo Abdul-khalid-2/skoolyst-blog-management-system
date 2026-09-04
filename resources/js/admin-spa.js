@@ -56,6 +56,7 @@
     // Widgets that build their own DOM from data attributes (e.g. the tag picker)
     // only run on DOMContentLoaded, which doesn't fire again for a swapped-in view.
     if (window.initTagInputs) window.initTagInputs(view);
+    if (window.initPostEditor) window.initPostEditor(view);
 
     var newHeading = doc.querySelector('.admin-page-title');
     if (titleEl && newHeading) titleEl.textContent = newHeading.textContent;

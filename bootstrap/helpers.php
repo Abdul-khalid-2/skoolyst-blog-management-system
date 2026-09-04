@@ -11,3 +11,4 @@ require_once dirname(__DIR__) . '/app/Helpers/session.php';
 require_once dirname(__DIR__) . '/app/Helpers/upload.php';
 require_once dirname(__DIR__) . '/app/Helpers/format.php';
 require_once dirname(__DIR__) . '/app/Helpers/component.php';
+require_once dirname(__DIR__) . '/app/Helpers/sanitize.php';

@@ -114,7 +114,8 @@ class PostService {
     public function create(array $data, int $authorId, array $tagIds = []): int {
         $data['slug'] = $this->slugify(($data['slug'] ?? '') !== '' ? $data['slug'] : $data['title']);
         $data['author_id'] = $authorId;
-        $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'] ?? '')) / 200));
+        $data['body'] = sanitize_html($data['body'] ?? '');
+        $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
         if (($data['status'] ?? 'draft') === 'published') {
             $data['published_date'] ??= date('Y-m-d');
         }
@@ -132,6 +133,7 @@ class PostService {
             $data['slug'] = $this->slugify($data['title'], $id);
         }
         if (isset($data['body'])) {
+            $data['body'] = sanitize_html($data['body']);
             $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
         }
         if (($data['status'] ?? null) === 'published') {
