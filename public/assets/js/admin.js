@@ -5,6 +5,17 @@ function closeAdminSidebar() {
   document.querySelector('[data-sidebar-backdrop]')?.classList.remove('is-open');
 }
 
+function copyTextFallback(text) {
+  var textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(textarea);
+}
+
 function closeAdminDropdowns(except) {
   document.querySelectorAll('[data-dropdown-menu]').forEach(function (menu) {
     if (menu !== except) menu.hidden = true;
@@ -15,6 +26,23 @@ function closeAdminDropdowns(except) {
 }
 
 document.addEventListener('click', function (e) {
+  var copyBtn = e.target.closest('[data-copy-url]');
+  if (copyBtn) {
+    var url = copyBtn.getAttribute('data-copy-url');
+    var showCopied = function () {
+      var original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function () { copyBtn.textContent = original; }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(showCopied, function () { copyTextFallback(url); showCopied(); });
+    } else {
+      copyTextFallback(url);
+      showCopied();
+    }
+    return;
+  }
+
   if (e.target.closest('[data-sidebar-toggle]')) {
     document.querySelector('[data-sidebar]')?.classList.toggle('is-open');
     document.querySelector('[data-sidebar-backdrop]')?.classList.toggle('is-open');

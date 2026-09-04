@@ -12,8 +12,14 @@ class MediaService {
         private AuditLog $audit = new AuditLog(),
     ) {}
 
-    public function recent(int $limit = 60): array {
-        return $this->media->recent($limit);
+    /** $uploadedBy, when given, restricts the list to that user's own uploads. */
+    public function recent(int $limit = 60, ?int $uploadedBy = null): array {
+        return $this->media->recent($limit, $uploadedBy);
+    }
+
+    /** True if $userRole may manage $item — 'author' accounts may only manage their own uploads; editor/admin manage all. Mirrors PostService::canManage. */
+    public function canManage(array $item, int $userId, string $userRole): bool {
+        return $userRole !== 'author' || (int) $item['uploaded_by'] === $userId;
     }
 
     /** $file is one entry from $_FILES. Returns the new blog_media row's id. */

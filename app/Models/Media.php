@@ -14,7 +14,9 @@ class Media extends Model {
         return parent::create($data);
     }
 
-    public function recent(int $limit = 50): array {
-        return $this->where([], 'created_at DESC', $limit);
+    /** $uploadedBy, when given, restricts the list to that user's own uploads. */
+    public function recent(int $limit = 50, ?int $uploadedBy = null): array {
+        $conditions = $uploadedBy !== null ? ['uploaded_by' => $uploadedBy] : [];
+        return $this->where($conditions, 'created_at DESC', $limit);
     }
 }
