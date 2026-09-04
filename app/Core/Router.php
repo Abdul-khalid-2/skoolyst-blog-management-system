@@ -61,7 +61,7 @@ class Router {
      */
     public function dispatch(string $method, string $uri): mixed {
         $method = strtoupper($method);
-        $path = '/' . trim(parse_url($uri, PHP_URL_PATH) ?: '/', '/');
+        $path = '/' . trim(rawurldecode(parse_url($uri, PHP_URL_PATH) ?: '/'), '/');
         if ($path === '') $path = '/';
 
         foreach ($this->routes[$method] ?? [] as $route) {

@@ -79,7 +79,7 @@ class PostService {
     }
 
     public function create(array $data, int $authorId, array $tagIds = []): int {
-        $data['slug'] = ($data['slug'] ?? '') ?: $this->slugify($data['title']);
+        $data['slug'] = $this->slugify(($data['slug'] ?? '') !== '' ? $data['slug'] : $data['title']);
         $data['author_id'] = $authorId;
         $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'] ?? '')) / 200));
         if (($data['status'] ?? 'draft') === 'published') {
@@ -93,8 +93,10 @@ class PostService {
     }
 
     public function update(int $id, array $data, int $userId, array $tagIds = []): bool {
-        if (!empty($data['title']) && empty($data['slug'])) {
-            $data['slug'] = $this->slugify($data['title']);
+        if (!empty($data['slug'])) {
+            $data['slug'] = $this->slugify($data['slug'], $id);
+        } elseif (!empty($data['title'])) {
+            $data['slug'] = $this->slugify($data['title'], $id);
         }
         if (isset($data['body'])) {
             $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
@@ -158,11 +160,12 @@ class PostService {
         foreach (array_diff($current, $tagIds) as $tagId) $this->tags->detachFromPost((int) $tagId, $postId);
     }
 
-    public function slugify(string $title): string {
+    /** $excludeId lets an existing post keep its own slug unchanged instead of colliding with itself on every save. */
+    public function slugify(string $title, ?int $excludeId = null): string {
         $base = strtolower(trim(preg_replace('/[^A-Za-z0-9]+/', '-', $title), '-')) ?: 'post';
         $slug = $base;
         $suffix = 1;
-        while ($this->posts->findBySlug($slug)) {
+        while (($existing = $this->posts->findBySlug($slug)) && (int) $existing['id'] !== $excludeId) {
             $slug = $base . '-' . (++$suffix);
         }
         return $slug;
