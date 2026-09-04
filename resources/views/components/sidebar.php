@@ -1,4 +1,5 @@
 <!-- Shared admin sidebar component. Expects optional $activeNav (string) from the calling view. -->
+<div class="admin-sidebar-backdrop" data-sidebar-backdrop></div>
 <aside class="admin-sidebar" data-sidebar>
   <div class="admin-sidebar-brand">Skoolyst<span>Blog</span></div>
   <nav class="admin-sidebar-nav">
