@@ -45,6 +45,7 @@ foreach ($users as $u) {
           'value' => $u['role'],
           'options' => $roles,
           'required' => true,
+          'help' => 'Admin manages everything including other users. Editor manages all posts/comments/media. Author manages only their own. Reader can only comment.',
       ]); ?>
       <div class="form-group">
         <label class="admin-checkbox-label">

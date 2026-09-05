@@ -33,6 +33,72 @@ Skoolyst Navy `#0A0E2A`, Blue `#0F4077`, Neon Cyan `#00D9FF`, Gold/Amber `#F4B94
 8. Add tests.
 9. Configure the web server document root to `public/`.
 
+## Deployment
+
+Commands to run, in order, when standing this app up on a new server (fresh install) or pushing an update to an existing one.
+
+### Requirements
+- PHP 8.2+ with extensions: `pdo`, `pdo_mysql`, `mbstring`, `gd` (used for image uploads — cover images and the media library are converted to WebP through GD, so uploads fail without it).
+- MySQL/MariaDB.
+- Composer.
+- Web server (Apache/Nginx) with the document root pointed at `public/`, `mod_rewrite` (or equivalent) enabled — see `public/.htaccess`.
+
+### Fresh install
+```bash
+git clone <repo-url> && cd <repo-dir>
+
+# 1. PHP dependencies
+composer install --no-dev --optimize-autoloader
+
+# 2. Environment config
+cp .env.example .env
+# edit .env: DB_HOST/DB_DATABASE/DB_USERNAME/DB_PASSWORD, APP_URL (full URL including /public
+# if the vhost root isn't already public/), APP_ENV=production, APP_DEBUG=false
+
+# 3. Create the database itself (the app does not create the schema/database — only its tables)
+mysql -u root -p -e "CREATE DATABASE skoolyst_blog_management CHARACTER SET utf8mb4"
+
+# 4. Run migrations (creates every blog_* table)
+php bin/migrate.php
+
+# 5. Seed the first admin account (admin@skoolyst.test / change-me-now — change this password immediately after logging in)
+php database/seeders/seed_admin.php
+
+# 6. Writable directories the app uploads/caches into
+mkdir -p uploads/media uploads/images uploads/module-specific storage/cache/htmlpurifier storage/logs storage/temp
+chmod -R 775 uploads storage      # Linux/macOS; skip on Windows/XAMPP
+
+# 7. (Optional) create an API key for external/API access — prints the raw key once, save it
+php bin/create-api-key.php "Some Client Name"
+```
+
+Then point the web server's document root at `public/` and confirm `.htaccess` rewriting is active (Apache: `AllowOverride All` on that vhost).
+
+### Updating an existing deployment
+```bash
+git pull
+
+composer install --no-dev --optimize-autoloader   # picks up any new/updated dependencies
+php bin/migrate.php                                # applies any new migration files only — already-run ones are skipped
+```
+Nothing else needs to be re-run for a routine update — seeding is one-time (it no-ops if the admin account already exists) and there's no asset build step (CSS/JS under `public/assets/` are plain files, not compiled).
+
+### Other commands
+| Command | What it does |
+|---|---|
+| `php bin/migrate.php` | Run any pending migrations. |
+| `php bin/migrate.php rollback` | Roll back the most recent migration batch. |
+| `php database/seeders/seed_admin.php` | Create the default admin account (`admin@skoolyst.test`) — safe to re-run, no-ops if it already exists. |
+| `php bin/create-api-key.php "Name"` | Generate a new Bearer API key for `routes/api.php`. |
+| `composer install` | Install PHP dependencies (add `--no-dev` in production). |
+| `vendor/bin/phpunit` | Run the test suite. |
+
+### Notes
+- There is no front-end build step — `resources/css` and `resources/js` are hand-copied into `public/assets/` (not compiled/bundled), so a deploy is just the files themselves; nothing to `npm run build`.
+- `uploads/` and `storage/cache|logs|temp` are gitignored and must exist and be writable on the server — they aren't created by `composer install` or migrations.
+- `storage/cache/htmlpurifier` specifically is HTMLPurifier's own definition cache (post body sanitization); if it's missing or unwritable, sanitization still works but silently loses the cache and re-parses its config on every request.
+- Never commit `.env`; copy `.env.example` on each new environment and fill in real credentials there.
+
 
 
 

@@ -7,6 +7,8 @@
  * $autocomplete (optional) — e.g. "username"/"current-password" on a login form, so browser
  * autofill can't misassign a saved credential to the wrong field (no autocomplete hint at all
  * is what causes that).
+ * $help (optional string) — shown as an "i" icon next to the label; hover or focus it to read
+ * a short explanation of the field, for guiding admin/editor/author users on the dashboard.
  */
 $type ??= 'text';
 $value ??= old($name ?? '', '');
@@ -15,7 +17,10 @@ $fieldId = 'field-' . clean($name ?? uniqid());
 ?>
 <div class="form-group<?= $errorMessages ? ' has-error' : '' ?>">
   <?php if (!empty($label)): ?>
-    <label for="<?= $fieldId ?>"><?= clean($label) ?><?= !empty($required) ? ' <span class="required">*</span>' : '' ?></label>
+    <label for="<?= $fieldId ?>">
+      <?= clean($label) ?><?= !empty($required) ? ' <span class="required">*</span>' : '' ?>
+      <?php if (!empty($help)): ?><span class="field-help" tabindex="0" role="img" aria-label="<?= clean($help) ?>" data-tooltip="<?= clean($help) ?>">i</span><?php endif; ?>
+    </label>
   <?php endif; ?>
 
   <?php if ($type === 'textarea'): ?>

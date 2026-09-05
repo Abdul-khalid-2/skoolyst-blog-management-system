@@ -6,6 +6,7 @@
     "php": "^8.2",
     "ext-mbstring": "*",
     "ext-pdo": "*",
+    "ext-gd": "*",
     "vlucas/phpdotenv": "^5.6",
     "ezyang/htmlpurifier": "^4.17"
   },

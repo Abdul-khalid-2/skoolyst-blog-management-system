@@ -5,8 +5,8 @@
 <h3>Add Category</h3>
 <form method="post" action="<?= url('/dashboard/categories') ?>">
   <?= csrf_field() ?>
-  <?php component('input', ['name' => 'name', 'label' => 'Name', 'required' => true]); ?>
-  <?php component('input', ['type' => 'textarea', 'name' => 'description', 'label' => 'Description']); ?>
+  <?php component('input', ['name' => 'name', 'label' => 'Name', 'required' => true, 'help' => "The category's display name, shown on the public site and in the Posts filter."]); ?>
+  <?php component('input', ['type' => 'textarea', 'name' => 'description', 'label' => 'Description', 'help' => "Optional — shown on the category's own page on the public site."]); ?>
   <?php component('button', ['label' => 'Add Category', 'type' => 'submit']); ?>
 </form>
 <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
@@ -30,8 +30,8 @@ foreach ($categories as $c) {
     ?>
     <form method="post" action="<?= url('/dashboard/categories/' . $c['id']) ?>">
       <?= csrf_field() ?>
-      <?php component('input', ['name' => 'name', 'label' => 'Name', 'value' => $c['name'], 'required' => true]); ?>
-      <?php component('input', ['type' => 'textarea', 'name' => 'description', 'label' => 'Description', 'value' => $c['description'] ?? '']); ?>
+      <?php component('input', ['name' => 'name', 'label' => 'Name', 'value' => $c['name'], 'required' => true, 'help' => "The category's display name, shown on the public site and in the Posts filter."]); ?>
+      <?php component('input', ['type' => 'textarea', 'name' => 'description', 'label' => 'Description', 'value' => $c['description'] ?? '', 'help' => "Optional — shown on the category's own page on the public site."]); ?>
       <?php component('button', ['label' => 'Save Changes', 'type' => 'submit']); ?>
     </form>
     <?php
