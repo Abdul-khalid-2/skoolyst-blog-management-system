@@ -14,6 +14,7 @@
       <a href="<?= url('/about') ?>">About</a>
       <a href="<?= url('/contact') ?>">Contact</a>
       <a href="<?= url('/terms') ?>">Terms &amp; Conditions</a>
+      <a href="<?= url('/privacy') ?>">Privacy Policy</a>
     </nav>
   </div>
   <div class="footer-bottom">

@@ -29,6 +29,14 @@ class PageController {
         ], 'frontend');
     }
 
+    public function privacy(): void {
+        View::render('frontend/privacy', [
+            'title' => 'Privacy Policy — Skoolyst Blog',
+            'description' => 'What information Skoolyst collects, why, and how it is handled.',
+            'activeNav' => 'privacy',
+        ], 'frontend');
+    }
+
     public function contact(): void {
         View::render('frontend/contact', ['title' => 'Contact — Skoolyst Blog', 'description' => 'Get in touch with the Skoolyst team.', 'activeNav' => 'contact'], 'frontend');
     }

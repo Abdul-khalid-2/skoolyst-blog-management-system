@@ -24,6 +24,7 @@ $router->get('/post/{slug}', [PostController::class, 'show']);
 $router->post('/post/{slug}/comments', [CommentController::class, 'store']);
 $router->get('/about', [PageController::class, 'about']);
 $router->get('/terms', [PageController::class, 'terms']);
+$router->get('/privacy', [PageController::class, 'privacy']);
 $router->get('/contact', [PageController::class, 'contact']);
 $router->post('/contact', [PageController::class, 'submitContact']);
 $router->post('/newsletter', [PageController::class, 'newsletter']);
