@@ -1,7 +1,10 @@
 <!-- Shared Skoolyst navbar component. Expects optional $activeNav (string) from the calling view. -->
 <header class="site-navbar">
   <div class="container navbar-inner">
-    <a href="<?= url('/') ?>" class="navbar-brand">Skoolyst<span>Blog</span></a>
+    <a href="<?= url('/') ?>" class="navbar-brand">
+      <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img">
+      <span class="brand-logo-word">Blogs</span>
+    </a>
 
     <button type="button" class="navbar-toggle" aria-label="Toggle navigation" aria-expanded="false" data-nav-toggle>
       <span></span><span></span><span></span>

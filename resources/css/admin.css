@@ -2,8 +2,9 @@
 .admin-body { height:100vh; overflow:hidden; margin:0; }
 .admin-shell { display:flex; height:100vh; overflow:hidden; }
 .admin-sidebar { width:240px; background:var(--skoolyst-navy); color:#CBD5E1; flex-shrink:0; padding:1.5rem 1rem; display:flex; flex-direction:column; overflow-y:auto; }
-.admin-sidebar-brand { display:block; color:var(--white); font-weight:800; margin-bottom:2rem; text-decoration:none; }
-.admin-sidebar-brand span { color:var(--skoolyst-cyan); }
+.admin-sidebar-brand { display:flex; flex-direction:row; align-items:center; gap:-0.5rem; color:var(--white); font-weight:800; margin-bottom:2rem; text-decoration:none; }
+.admin-sidebar-brand .brand-logo-img { height:32px; width:auto; transform:translateY(-9%); }
+.admin-sidebar-brand .brand-logo-word { color:var(--skoolyst-cyan); font-size:1.1rem; letter-spacing:.02em; }
 .admin-sidebar-nav { display:flex; flex-direction:column; gap:.35rem; flex:1; }
 .admin-sidebar-nav a { color:#CBD5E1; text-decoration:none; padding:.6rem .75rem; border-radius:var(--radius); font-weight:500; }
 .admin-sidebar-nav a.is-active, .admin-sidebar-nav a:hover { background:rgba(255,255,255,.08); color:var(--white); }

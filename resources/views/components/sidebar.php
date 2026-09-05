@@ -1,7 +1,10 @@
 <!-- Shared admin sidebar component. Expects optional $activeNav (string) from the calling view. -->
 <div class="admin-sidebar-backdrop" data-sidebar-backdrop></div>
 <aside class="admin-sidebar" data-sidebar>
-  <a href="<?= url('/') ?>" class="admin-sidebar-brand">Skoolyst<span>Blog</span></a>
+  <a href="<?= url('/') ?>" class="admin-sidebar-brand">
+    <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img">
+    <span class="brand-logo-word">Blogs</span>
+  </a>
   <nav class="admin-sidebar-nav">
     <a href="<?= url('/dashboard') ?>" class="<?= ($activeNav ?? '') === 'dashboard' ? 'is-active' : '' ?>">Overview</a>
     <a href="<?= url('/dashboard/posts') ?>" class="<?= ($activeNav ?? '') === 'posts' ? 'is-active' : '' ?>">Posts</a>
