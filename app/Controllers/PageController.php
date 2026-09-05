@@ -14,7 +14,11 @@ use Skoolyst\Core\View;
  */
 class PageController {
     public function about(): void {
-        View::render('frontend/about', ['title' => 'About — Skoolyst Blog', 'description' => 'Learn about Skoolyst and this blog.', 'activeNav' => 'about'], 'frontend');
+        View::render('frontend/about', [
+            'title' => 'About — Skoolyst Blog',
+            'description' => 'Skoolyst shares practical knowledge, resources and insights on learning, teaching, AI in education, and the future of schools.',
+            'activeNav' => 'about',
+        ], 'frontend');
     }
 
     public function contact(): void {
