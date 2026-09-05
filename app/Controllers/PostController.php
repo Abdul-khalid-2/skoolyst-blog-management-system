@@ -187,7 +187,15 @@ class PostController {
 
         if ($errors) {
             flash('error', 'Please fix the errors below.');
-            return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
+            $post = Request::all();
+            $post['id'] = $id;
+            if (empty($post['cover_image'])) $post['cover_image'] = $existing['cover_image'] ?? '';
+            return View::render('admin/posts/edit', [
+                'title' => 'Edit Post', 'activeNav' => 'posts', 'post' => $post,
+                'categories' => $this->categories->all('name ASC'), 'errors' => $errors,
+                'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
+                'selectedTagIds' => array_map('intval', (array) Request::input('tags', [])),
+            ], 'admin');
         }
 
         $this->posts->update($id, [
@@ -204,7 +212,7 @@ class PostController {
         $this->posts->syncTagsFromEditor($id, (array) Request::input('tags', []), (string) Request::input('new_tags', ''));
 
         flash('success', 'Post updated.');
-        return Response::redirect(url('/dashboard/posts/' . $id . '/edit'));
+        return Response::redirect(url('/dashboard/posts/'));
     }
 
     /**
