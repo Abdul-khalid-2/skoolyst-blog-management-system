@@ -2,6 +2,9 @@
 /storage/logs/*
 /storage/cache/*
 /storage/temp/*
+!/storage/logs/.gitkeep
+!/storage/cache/.gitkeep
+!/storage/temp/.gitkeep
 /uploads/*
 !/uploads/images/.gitkeep
 !/uploads/media/.gitkeep
