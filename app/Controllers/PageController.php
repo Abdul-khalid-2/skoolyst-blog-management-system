@@ -21,6 +21,14 @@ class PageController {
         ], 'frontend');
     }
 
+    public function terms(): void {
+        View::render('frontend/terms', [
+            'title' => 'Terms & Conditions — Skoolyst Blog',
+            'description' => 'The terms governing content and accounts on the Skoolyst education platform.',
+            'activeNav' => 'terms',
+        ], 'frontend');
+    }
+
     public function contact(): void {
         View::render('frontend/contact', ['title' => 'Contact — Skoolyst Blog', 'description' => 'Get in touch with the Skoolyst team.', 'activeNav' => 'contact'], 'frontend');
     }
