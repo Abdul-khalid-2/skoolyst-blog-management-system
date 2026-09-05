@@ -116,6 +116,7 @@ class PostController {
             'categories' => $this->categories->all('name ASC'),
             'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
             'selectedTagIds' => [],
+            'maxUploadSize' => $this->maxUploadSize(),
         ], 'admin');
     }
 
@@ -135,6 +136,7 @@ class PostController {
                 'title' => 'New Post', 'activeNav' => 'posts', 'post' => Request::all(),
                 'categories' => $this->categories->all('name ASC'), 'errors' => $errors,
                 'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'), 'selectedTagIds' => [],
+                'maxUploadSize' => $this->maxUploadSize(),
             ], 'admin');
         }
 
@@ -167,6 +169,7 @@ class PostController {
             'categories' => $this->categories->all('name ASC'),
             'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
             'selectedTagIds' => array_column($this->posts->tagsFor($id), 'id'),
+            'maxUploadSize' => $this->maxUploadSize(),
         ], 'admin');
         return null;
     }
@@ -195,6 +198,7 @@ class PostController {
                 'categories' => $this->categories->all('name ASC'), 'errors' => $errors,
                 'allTags' => (new \Skoolyst\Models\Tag())->all('name ASC'),
                 'selectedTagIds' => array_map('intval', (array) Request::input('tags', [])),
+                'maxUploadSize' => $this->maxUploadSize(),
             ], 'admin');
         }
 
@@ -239,6 +243,11 @@ class PostController {
             // should still surface as a normal validation error, not a 500.
             return [trim($urlInput), 'Could not process the uploaded image. Please try again.'];
         }
+    }
+
+    /** The configured upload size cap, exposed to the edit form so it can reject an oversized cover image client-side before ever uploading it. */
+    private function maxUploadSize(): int {
+        return (int) (require dirname(__DIR__, 2) . '/config/upload.php')['max_size'];
     }
 
     /** Guards against a stale/tampered category_id (e.g. the category was deleted while the form was open) causing a DB-level FK error. */

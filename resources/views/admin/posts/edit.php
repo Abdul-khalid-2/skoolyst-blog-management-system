@@ -3,13 +3,13 @@
 $isEdit = !empty($post['id']);
 $coverImageTab = !empty($post['cover_image']) ? 'url' : 'upload';
 ?>
-<form method="post" action="<?= $isEdit ? url('/dashboard/posts/' . $post['id']) : url('/dashboard/posts') ?>" class="post-editor" enctype="multipart/form-data">
+<form method="post" action="<?= $isEdit ? url('/dashboard/posts/' . $post['id']) : url('/dashboard/posts') ?>" class="post-editor" enctype="multipart/form-data" novalidate>
   <?= csrf_field() ?>
   <div class="post-editor-grid">
     <div class="post-editor-main">
       <div class="card">
         <div class="card-body">
-          <?php component('input', ['name' => 'title', 'label' => 'Title', 'value' => $post['title'] ?? '', 'required' => true, 'error' => $errors['title'] ?? null, 'help' => 'The headline shown on the article page, in listings, and in the browser tab.']); ?>
+          <?php component('input', ['name' => 'title', 'label' => 'Title', 'value' => $post['title'] ?? '', 'required' => true, 'maxlength' => 220, 'error' => $errors['title'] ?? null, 'help' => 'The headline shown on the article page, in listings, and in the browser tab.']); ?>
           <?php component('input', ['name' => 'slug', 'label' => 'Slug (optional — auto-generated if blank)', 'value' => $post['slug'] ?? '', 'help' => 'The URL-friendly identifier, e.g. /post/your-slug. Leave blank to generate one from the title automatically.']); ?>
           <?php component('input', ['type' => 'textarea', 'name' => 'excerpt', 'label' => 'Excerpt', 'value' => $post['excerpt'] ?? '', 'help' => 'A short summary shown on listing/card pages and used as the SEO description if that field is left blank. Not shown on the article itself.']); ?>
           <?php component('input', ['type' => 'textarea', 'name' => 'body', 'label' => 'Body', 'value' => $post['body'] ?? '', 'required' => true, 'error' => $errors['body'] ?? null, 'help' => 'The main article content. Use the toolbar to format text, add links, images and tables.']); ?>
@@ -49,7 +49,7 @@ $coverImageTab = !empty($post['cover_image']) ? 'url' : 'upload';
             </div>
 
             <div data-tab-panel="upload"<?= $coverImageTab !== 'upload' ? ' hidden' : '' ?>>
-              <input type="file" name="cover_image_file" class="form-control" accept="image/*">
+              <input type="file" name="cover_image_file" class="form-control" accept="image/*" data-max-size="<?= (int) ($maxUploadSize ?? 0) ?>">
               <?php foreach ((array) ($errors['cover_image_file'] ?? []) as $msg): ?>
                 <p class="form-error"><?= clean($msg) ?></p>
               <?php endforeach; ?>

@@ -9,6 +9,8 @@
  * is what causes that).
  * $help (optional string) — shown as an "i" icon next to the label; hover or focus it to read
  * a short explanation of the field, for guiding admin/editor/author users on the dashboard.
+ * $maxlength (optional int) — only pass this when a matching server-side max: rule exists too,
+ * so the client-side limit never blocks something the server would actually accept.
  */
 $type ??= 'text';
 $value ??= old($name ?? '', '');
@@ -24,7 +26,7 @@ $fieldId = 'field-' . clean($name ?? uniqid());
   <?php endif; ?>
 
   <?php if ($type === 'textarea'): ?>
-    <textarea id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?>><?= clean($value) ?></textarea>
+    <textarea id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?><?= !empty($maxlength) ? ' maxlength="' . (int) $maxlength . '"' : '' ?>><?= clean($value) ?></textarea>
   <?php elseif ($type === 'select'): ?>
     <select id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control"<?= !empty($required) ? ' required' : '' ?>>
       <?php foreach (($options ?? []) as $optValue => $optLabel): ?>
@@ -32,7 +34,7 @@ $fieldId = 'field-' . clean($name ?? uniqid());
       <?php endforeach; ?>
     </select>
   <?php else: ?>
-    <input type="<?= clean($type) ?>" id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" value="<?= clean($value) ?>" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?><?= !empty($autocomplete) ? ' autocomplete="' . clean($autocomplete) . '"' : '' ?>>
+    <input type="<?= clean($type) ?>" id="<?= $fieldId ?>" name="<?= clean($name ?? '') ?>" class="form-control" value="<?= clean($value) ?>" placeholder="<?= clean($placeholder ?? '') ?>"<?= !empty($required) ? ' required' : '' ?><?= !empty($maxlength) ? ' maxlength="' . (int) $maxlength . '"' : '' ?><?= !empty($autocomplete) ? ' autocomplete="' . clean($autocomplete) . '"' : '' ?>>
   <?php endif; ?>
 
   <?php foreach ($errorMessages as $msg): ?>
