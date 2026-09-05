@@ -26,7 +26,8 @@ function handle_upload(array $file, string $subdir): array {
         throw new RuntimeException('Invalid upload.');
     }
 
-    $maxSize = (int) (require dirname(__DIR__, 2) . '/config/upload.php')['max_size'];
+    $config = require dirname(__DIR__, 2) . '/config/upload.php';
+    $maxSize = (int) $config['max_size'];
     if ($file['size'] > $maxSize) {
         throw new RuntimeException('File is too large (max ' . round($maxSize / 1048576, 1) . ' MB).');
     }
@@ -37,6 +38,15 @@ function handle_upload(array $file, string $subdir): array {
     $info = @getimagesize($file['tmp_name']);
     if (!$info || $info[0] < 1 || $info[1] < 1) {
         throw new RuntimeException('That file is not a valid image.');
+    }
+
+    // GD decodes the entire bitmap into memory before we get a chance to reject
+    // it — a small, well-compressed file can still be huge in pixel dimensions
+    // and exhaust memory_limit (a silent fatal, not a catchable exception).
+    // Reject oversized dimensions up front, before any imagecreatefrom*() call.
+    $maxMegapixels = (int) $config['max_megapixels'];
+    if ($info[0] * $info[1] > $maxMegapixels * 1_000_000) {
+        throw new RuntimeException("Image resolution is too large (max {$maxMegapixels} megapixels).");
     }
 
     $image = match ($info[2]) {

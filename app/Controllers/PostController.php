@@ -231,7 +231,13 @@ class PostController {
             $mediaId = $this->media->upload($file, (int) auth_user()['id']);
             return [(new Media())->find($mediaId)['url'], null];
         } catch (\RuntimeException $e) {
+            // Thrown deliberately by handle_upload() with a user-facing message
+            // (bad format, too large, too high-resolution, etc).
             return [trim($urlInput), $e->getMessage()];
+        } catch (\Throwable $e) {
+            // Anything unexpected (e.g. a DB failure while recording the upload)
+            // should still surface as a normal validation error, not a 500.
+            return [trim($urlInput), 'Could not process the uploaded image. Please try again.'];
         }
     }
 

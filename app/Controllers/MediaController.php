@@ -34,6 +34,8 @@ class MediaController {
                 flash('success', 'File uploaded.');
             } catch (\RuntimeException $e) {
                 flash('error', $e->getMessage());
+            } catch (\Throwable $e) {
+                flash('error', 'Could not process the uploaded image. Please try again.');
             }
         }
         Response::redirect(url('/dashboard/media'));
