@@ -10,7 +10,7 @@
 <?php endif; endforeach; ?>
 <main class="site-main"><?= $content ?? '' ?></main>
 <?php require __DIR__ . '/../components/footer.php'; ?>
-<script src="<?= url('assets/js/app.js') ?>"></script>
-<?php if (!empty($extraJs)): ?><script src="<?= url($extraJs) ?>"></script><?php endif; ?>
+<script src="<?= asset('assets/js/app.js') ?>"></script>
+<?php if (!empty($extraJs)): ?><script src="<?= asset($extraJs) ?>"></script><?php endif; ?>
 </body>
 </html>

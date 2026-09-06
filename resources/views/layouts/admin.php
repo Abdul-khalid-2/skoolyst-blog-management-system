@@ -7,7 +7,7 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
 <html lang="en">
 <head>
 <?php require __DIR__ . '/../components/head.php'; ?>
-<link rel="stylesheet" href="<?= url('assets/css/admin.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/admin.css') ?>">
 </head>
 <body class="admin-body">
 <div class="admin-shell">
@@ -42,12 +42,12 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
     </div>
   </div>
 </div>
-<script src="<?= url('assets/js/app.js') ?>"></script>
-<script src="<?= url('assets/js/admin.js') ?>"></script>
-<script src="<?= url('assets/js/admin-spa.js') ?>"></script>
-<script src="<?= url('assets/js/tag-input.js') ?>"></script>
+<script src="<?= asset('assets/js/app.js') ?>"></script>
+<script src="<?= asset('assets/js/admin.js') ?>"></script>
+<script src="<?= asset('assets/js/admin-spa.js') ?>"></script>
+<script src="<?= asset('assets/js/tag-input.js') ?>"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-<script src="<?= url('assets/js/post-editor.js') ?>"></script>
-<?php if (!empty($extraJs)): ?><script src="<?= url($extraJs) ?>"></script><?php endif; ?>
+<script src="<?= asset('assets/js/post-editor.js') ?>"></script>
+<?php if (!empty($extraJs)): ?><script src="<?= asset($extraJs) ?>"></script><?php endif; ?>
 </body>
 </html>
