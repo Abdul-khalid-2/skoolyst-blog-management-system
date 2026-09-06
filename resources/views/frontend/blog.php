@@ -4,6 +4,9 @@
  * $activeCategory come from PostController@index.
  */
 ?>
+
+<div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
+
 <section class="container">
   <h1>Articles</h1>
 

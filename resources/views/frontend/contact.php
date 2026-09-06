@@ -1,3 +1,5 @@
+<div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
+
 <?php /** Contact page. Submits to PageController@submitContact. */ ?>
 <section class="container">
   <h1>Contact Us</h1>
