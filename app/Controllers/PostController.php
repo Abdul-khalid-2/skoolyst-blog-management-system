@@ -29,6 +29,7 @@ class PostController {
             'activeNav' => 'home',
             'featured' => $sections['featured'],
             'latest' => $sections['latest'],
+            'extraJs' => 'assets/js/ads.js',
         ], 'frontend');
     }
 

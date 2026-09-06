@@ -13,6 +13,8 @@
   </form>
 </section>
 
+<div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
+
 <section class="container">
   <h2>Featured Articles</h2>
   <div class="post-grid">

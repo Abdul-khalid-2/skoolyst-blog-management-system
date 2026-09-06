@@ -4,6 +4,7 @@ declare(strict_types=1);
 // Admin panel routes. Registered onto the shared $router from routes/web.php
 // (which requires this file) — see the note there for why.
 
+use Skoolyst\Controllers\AdController;
 use Skoolyst\Controllers\CategoryController;
 use Skoolyst\Controllers\CommentController;
 use Skoolyst\Controllers\DashboardController;
@@ -40,3 +41,6 @@ $router->post('/dashboard/categories/{id}/delete', [CategoryController::class, '
 $router->get('/dashboard/media', [MediaController::class, 'index'], ['Staff']);
 $router->post('/dashboard/media', [MediaController::class, 'upload'], ['Staff']);
 $router->post('/dashboard/media/{id}/delete', [MediaController::class, 'destroy'], ['Staff']);
+
+// TEMPORARY — see AdController::debug(). Admin-only; remove once ads.skoolyst.com is confirmed working.
+$router->get('/dashboard/debug/ads', [AdController::class, 'debug'], ['Admin']);

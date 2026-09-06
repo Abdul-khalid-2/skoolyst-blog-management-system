@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Skoolyst\Controllers\AdController;
 use Skoolyst\Controllers\AuthController;
 use Skoolyst\Controllers\CategoryController;
 use Skoolyst\Controllers\CommentController;
@@ -29,6 +30,9 @@ $router->get('/contact', [PageController::class, 'contact']);
 $router->post('/contact', [PageController::class, 'submitContact']);
 $router->post('/newsletter', [PageController::class, 'newsletter']);
 $router->get('/media/{filename}', [MediaController::class, 'serve']);
+
+$router->post('/ads/track/impression', [AdController::class, 'impression']);
+$router->post('/ads/track/click', [AdController::class, 'click']);
 
 $router->get('/login', [AuthController::class, 'showLogin'], ['Guest']);
 $router->post('/login', [AuthController::class, 'login'], ['Guest']);
