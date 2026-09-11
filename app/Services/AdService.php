@@ -40,12 +40,27 @@ class AdService {
             return null;
         }
         $ad = $response['data']['ad'] ?? null;
+        if ($ad && !$this->hasValidClickUrl($ad)) $ad = null;
 
         // Cache the result (including a confirmed "no ad") so an empty placement
         // doesn't cost a round trip on every pageview until the TTL expires.
         file_put_contents($cacheFile, json_encode(['ad' => $ad]));
 
         return $ad;
+    }
+
+    /**
+     * ads.skoolyst.com is a separate platform this app has no control over, and its
+     * inventory has shipped at least one malformed click_url (two schemes concatenated
+     * together, e.g. "https://a.comhttps://b.com/..."). This blog can't fix bad data at
+     * the source, but it can refuse to publish a broken/suspicious external link on an
+     * authority-building page — so an ad with an invalid click_url is treated as no ad.
+     */
+    private function hasValidClickUrl(array $ad): bool {
+        $url = $ad['click_url'] ?? '';
+        if (!is_string($url) || $url === '') return false;
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) return false;
+        return substr_count($url, '://') === 1;
     }
 
     /** Resolves the placement code configured for a friendly slot name (see config/ads.php). */

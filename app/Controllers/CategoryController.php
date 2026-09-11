@@ -29,11 +29,21 @@ class CategoryController {
         View::render('frontend/category', [
             'title' => $category['name'] . ' — Skoolyst Blog',
             'description' => $category['description'] ?: ('Articles in ' . $category['name']),
+            'canonical' => url('/category/' . $category['slug']),
             'activeNav' => 'blog',
             'category' => $category,
             'posts' => $result['data'],
             'page' => $result['page'],
             'totalPages' => $result['totalPages'],
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => [
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('/blog')],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $category['name'], 'item' => url('/category/' . $category['slug'])],
+                ],
+            ],
         ], 'frontend');
         return null;
     }

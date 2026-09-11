@@ -2,6 +2,27 @@
 <html lang="en">
 <head>
 <?php require __DIR__ . '/../components/head.php'; ?>
+<script type="application/ld+json"><?= json_encode([
+  '@context' => 'https://schema.org',
+  '@graph' => [
+    [
+      '@type' => 'Organization',
+      'name' => 'Skoolyst',
+      'url' => url('/'),
+      'logo' => url('assets/images/skoolyst-blog.png'),
+    ],
+    [
+      '@type' => 'WebSite',
+      'name' => 'Skoolyst Blog',
+      'url' => url('/'),
+      'potentialAction' => [
+        '@type' => 'SearchAction',
+        'target' => url('/blog') . '?q={search_term_string}',
+        'query-input' => 'required name=search_term_string',
+      ],
+    ],
+  ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
 </head>
 <body>
 <?php require __DIR__ . '/../components/navbar.php'; ?>

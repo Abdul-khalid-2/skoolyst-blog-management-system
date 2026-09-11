@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<?php require __DIR__ . '/../components/head.php'; ?>
+<?php $noindex = true; require __DIR__ . '/../components/head.php'; ?>
 </head>
 <body class="auth-body">
 <main class="auth-layout">

@@ -26,6 +26,7 @@ class PostController {
         View::render('frontend/home', [
             'title' => 'Skoolyst Blog — Home',
             'description' => 'Product news, teaching resources and community stories from Skoolyst.',
+            'canonical' => url('/'),
             'activeNav' => 'home',
             'featured' => $sections['featured'],
             'latest' => $sections['latest'],
@@ -42,9 +43,14 @@ class PostController {
         $category = $categorySlug ? $this->categories->findBySlug($categorySlug) : null;
         $result = $this->posts->publicList($page, $search ?: null, $category['id'] ?? null, $sort);
 
+        // Canonicalizes to the stable category filter only; drops 'q' (search) and
+        // 'sort', which would otherwise generate near-duplicate indexable URLs for
+        // every query/sort combination of the same underlying content.
+        $canonical = url('/blog') . ($categorySlug ? '?category=' . urlencode($categorySlug) : '');
         View::render('frontend/blog', [
             'title' => 'Articles — Skoolyst Blog',
             'description' => 'Browse all articles from the Skoolyst blog.',
+            'canonical' => $canonical,
             'activeNav' => 'blog',
             'posts' => $result['data'],
             'page' => $result['page'],
@@ -66,10 +72,12 @@ class PostController {
         $category = $post['category_id'] ? (new Category())->find((int) $post['category_id']) : null;
         $author = $post['author_id'] ? \Skoolyst\Models\User::findById((int) $post['author_id']) : null;
 
+        $canonical = url('/post/' . $post['slug']);
         View::render('frontend/post', [
             'title' => $post['seo_title'] ?: $post['title'],
             'description' => $post['seo_description'] ?: $post['excerpt'],
-            'canonical' => url('/post/' . $post['slug']),
+            'canonical' => $canonical,
+            'ogType' => 'article',
             'ogImage' => $post['cover_image'],
             'activeNav' => 'blog',
             'post' => $post,
@@ -78,6 +86,41 @@ class PostController {
             'tags' => $this->posts->tagsFor((int) $post['id']),
             'related' => $this->posts->relatedTo($post, 3),
             'comments' => $this->comments->approvedForPost((int) $post['id']),
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'BlogPosting',
+                        'headline' => $post['title'],
+                        'description' => $post['seo_description'] ?: $post['excerpt'],
+                        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $canonical],
+                        'url' => $canonical,
+                        'datePublished' => date('c', strtotime($post['published_date'] ?? $post['created_at'])),
+                        'dateModified' => date('c', strtotime($post['updated_at'] ?? $post['created_at'])),
+                        'image' => $post['cover_image'] ?: null,
+                        // Never fabricate a byline: attribute to the real blog_users author when
+                        // one is set, otherwise fall back to the Organization itself (still a
+                        // true statement — Skoolyst genuinely published it — not an invented name.
+                        'author' => $author
+                            ? ['@type' => 'Person', 'name' => $author['name']]
+                            : ['@type' => 'Organization', 'name' => 'Skoolyst'],
+                        'publisher' => [
+                            '@type' => 'Organization',
+                            'name' => 'Skoolyst',
+                            'logo' => ['@type' => 'ImageObject', 'url' => url('assets/images/skoolyst-blog.png')],
+                        ],
+                    ],
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => array_values(array_filter([
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('/blog')],
+                            $category ? ['@type' => 'ListItem', 'position' => 3, 'name' => $category['name'], 'item' => url('/category/' . $category['slug'])] : null,
+                            ['@type' => 'ListItem', 'position' => $category ? 4 : 3, 'name' => $post['title'], 'item' => $canonical],
+                        ])),
+                    ],
+                ],
+            ],
         ], 'frontend');
         return null;
     }

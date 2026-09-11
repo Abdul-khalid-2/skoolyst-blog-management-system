@@ -6,7 +6,7 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
 <!doctype html>
 <html lang="en">
 <head>
-<?php require __DIR__ . '/../components/head.php'; ?>
+<?php $noindex = true; require __DIR__ . '/../components/head.php'; ?>
 <link rel="stylesheet" href="<?= asset('assets/css/admin.css') ?>">
 </head>
 <body class="admin-body">

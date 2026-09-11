@@ -8,6 +8,7 @@ use Skoolyst\Controllers\CommentController;
 use Skoolyst\Controllers\MediaController;
 use Skoolyst\Controllers\PageController;
 use Skoolyst\Controllers\PostController;
+use Skoolyst\Controllers\SitemapController;
 use Skoolyst\Core\Router;
 
 $router = new Router();
@@ -30,6 +31,7 @@ $router->get('/contact', [PageController::class, 'contact']);
 $router->post('/contact', [PageController::class, 'submitContact']);
 $router->post('/newsletter', [PageController::class, 'newsletter']);
 $router->get('/media/{filename}', [MediaController::class, 'serve']);
+$router->get('/sitemap.xml', [SitemapController::class, 'index']);
 
 $router->post('/ads/track/impression', [AdController::class, 'impression']);
 $router->post('/ads/track/click', [AdController::class, 'click']);

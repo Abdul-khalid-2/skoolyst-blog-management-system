@@ -1,4 +1,4 @@
-<?php $title = 'Page Not Found'; ?>
+<?php $title = 'Page Not Found'; $noindex = true; ?>
 <div class="container">
   <?php component('empty-state', [
       'title' => '404 — Page not found',

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /signup
+Disallow: /ads/track/
+
+Sitemap: https://blogs.skoolyst.com/sitemap.xml

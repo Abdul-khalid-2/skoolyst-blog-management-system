@@ -17,6 +17,7 @@ class PageController {
         View::render('frontend/about', [
             'title' => 'About — Skoolyst Blog',
             'description' => 'Skoolyst shares practical knowledge, resources and insights on learning, teaching, AI in education, and the future of schools.',
+            'canonical' => url('/about'),
             'activeNav' => 'about',
         ], 'frontend');
     }
@@ -25,6 +26,7 @@ class PageController {
         View::render('frontend/terms', [
             'title' => 'Terms & Conditions — Skoolyst Blog',
             'description' => 'The terms governing content and accounts on the Skoolyst education platform.',
+            'canonical' => url('/terms'),
             'activeNav' => 'terms',
         ], 'frontend');
     }
@@ -33,12 +35,18 @@ class PageController {
         View::render('frontend/privacy', [
             'title' => 'Privacy Policy — Skoolyst Blog',
             'description' => 'What information Skoolyst collects, why, and how it is handled.',
+            'canonical' => url('/privacy'),
             'activeNav' => 'privacy',
         ], 'frontend');
     }
 
     public function contact(): void {
-        View::render('frontend/contact', ['title' => 'Contact — Skoolyst Blog', 'description' => 'Get in touch with the Skoolyst team.', 'activeNav' => 'contact'], 'frontend');
+        View::render('frontend/contact', [
+            'title' => 'Contact — Skoolyst Blog',
+            'description' => 'Get in touch with the Skoolyst team.',
+            'canonical' => url('/contact'),
+            'activeNav' => 'contact',
+        ], 'frontend');
     }
 
     public function submitContact(): never {

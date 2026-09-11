@@ -4,7 +4,16 @@
 <article class="container post-detail">
   <?php if ($category): ?><p><?php component('badge', ['label' => $category['name'], 'variant' => 'info']); ?></p><?php endif; ?>
   <h1><?= clean($post['title']) ?></h1>
-  <p class="post-meta"><?= format_date($post['published_date'] ?? $post['created_at']) ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views</p>
+  <?php
+  $__published = $post['published_date'] ?? $post['created_at'];
+  // Only surfaces "Updated" when it's a real, meaningfully later revision (not the
+  // same-second timestamp every post gets on creation) — avoids implying every post
+  // was "updated" the moment it was published.
+  $__showUpdated = !empty($post['updated_at']) && (strtotime($post['updated_at']) - strtotime($__published)) > 86400;
+  ?>
+  <p class="post-meta">
+    <?= format_date($__published) ?><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views
+  </p>
 
   <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover"><?php endif; ?>
 

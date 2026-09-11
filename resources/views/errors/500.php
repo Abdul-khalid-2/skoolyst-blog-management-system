@@ -1,4 +1,4 @@
-<?php $title = 'Something Went Wrong'; ?>
+<?php $title = 'Something Went Wrong'; $noindex = true; ?>
 <div class="container">
   <?php component('empty-state', [
       'title' => '500 — Something went wrong',

@@ -29,4 +29,11 @@ class Response {
         echo $body;
         exit;
     }
+
+    public static function xml(string $body, int $status = 200): never {
+        http_response_code($status);
+        header('Content-Type: application/xml; charset=utf-8');
+        echo $body;
+        exit;
+    }
 }
