@@ -11,7 +11,7 @@ if (!$__ad) return;
 ?>
 <div class="ad-slot" data-ad-id="<?= (int) $__ad['id'] ?>" data-ad-track-url="<?= clean(url('/ads/track/')) ?>" data-ad-csrf="<?= clean(csrf_token()) ?>">
   <span class="ad-slot-label">Sponsored</span>
-  <a class="ad-slot-card" href="<?= clean($__ad['click_url']) ?>" target="_blank" rel="noopener sponsored" data-ad-click>
+  <a class="ad-slot-card" href="<?= clean($__ad['click_url']) ?>" target="_blank" rel="noopener nofollow sponsored" data-ad-click>
     <?php if (!empty($__ad['image_path'])): ?>
       <img src="<?= clean($__ads->imageUrl($__ad['image_path'])) ?>" alt="<?= clean($__ad['title'] ?? '') ?>" loading="lazy">
     <?php endif; ?>

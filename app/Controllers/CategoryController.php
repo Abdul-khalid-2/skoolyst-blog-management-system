@@ -26,10 +26,20 @@ class CategoryController {
         $page = max(1, (int) Request::query('page', 1));
         $result = $this->posts->publicList($page, null, (int) $category['id']);
 
+        $canonical = url('/category/' . $category['slug']);
+        $description = $category['description'] ?: ('Browse articles about ' . $category['name'] . ' — product news, teaching resources and stories from Skoolyst.');
+
+        $jsonLdItems = array_map(fn ($post, $i) => [
+            '@type' => 'ListItem',
+            'position' => $i + 1,
+            'item' => ['@type' => 'BlogPosting', 'headline' => $post['title'], 'url' => url('/post/' . $post['slug'])],
+        ], $result['data'], array_keys($result['data']));
+
         View::render('frontend/category', [
             'title' => $category['name'] . ' — Skoolyst Blog',
-            'description' => $category['description'] ?: ('Articles in ' . $category['name']),
-            'canonical' => url('/category/' . $category['slug']),
+            'description' => $description,
+            'canonical' => $canonical,
+            'ogImage' => url('assets/images/skoolyst-blog.png'),
             'activeNav' => 'blog',
             'category' => $category,
             'posts' => $result['data'],
@@ -37,11 +47,23 @@ class CategoryController {
             'totalPages' => $result['totalPages'],
             'jsonLd' => [
                 '@context' => 'https://schema.org',
-                '@type' => 'BreadcrumbList',
-                'itemListElement' => [
-                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
-                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('/blog')],
-                    ['@type' => 'ListItem', 'position' => 3, 'name' => $category['name'], 'item' => url('/category/' . $category['slug'])],
+                '@graph' => [
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('/blog')],
+                            ['@type' => 'ListItem', 'position' => 3, 'name' => $category['name'], 'item' => $canonical],
+                        ],
+                    ],
+                    [
+                        '@type' => 'CollectionPage',
+                        '@id' => $canonical,
+                        'name' => $category['name'] . ' — Skoolyst Blog',
+                        'description' => $description,
+                        'url' => $canonical,
+                        'mainEntity' => ['@type' => 'ItemList', 'itemListElement' => $jsonLdItems],
+                    ],
                 ],
             ],
         ], 'frontend');

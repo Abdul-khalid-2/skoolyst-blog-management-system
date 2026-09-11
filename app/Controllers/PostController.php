@@ -47,10 +47,29 @@ class PostController {
         // 'sort', which would otherwise generate near-duplicate indexable URLs for
         // every query/sort combination of the same underlying content.
         $canonical = url('/blog') . ($categorySlug ? '?category=' . urlencode($categorySlug) : '');
+
+        if ($category) {
+            $title = $category['name'] . ' Articles — Skoolyst Blog';
+            $description = 'Browse articles about ' . $category['name'] . ' — product news, teaching resources and community stories from Skoolyst.';
+        } elseif ($search !== '') {
+            $title = 'Search: ' . $search . ' — Skoolyst Blog';
+            $description = 'Skoolyst Blog search results for "' . $search . '".';
+        } else {
+            $title = 'Articles — Skoolyst Blog';
+            $description = 'Product news, teaching resources and community stories from the Skoolyst team.';
+        }
+
+        $jsonLdItems = array_map(fn ($post, $i) => [
+            '@type' => 'ListItem',
+            'position' => $i + 1,
+            'item' => ['@type' => 'BlogPosting', 'headline' => $post['title'], 'url' => url('/post/' . $post['slug'])],
+        ], $result['data'], array_keys($result['data']));
+
         View::render('frontend/blog', [
-            'title' => 'Articles — Skoolyst Blog',
-            'description' => 'Browse all articles from the Skoolyst blog.',
+            'title' => $title,
+            'description' => $description,
             'canonical' => $canonical,
+            'ogImage' => url('assets/images/skoolyst-blog.png'),
             'activeNav' => 'blog',
             'posts' => $result['data'],
             'page' => $result['page'],
@@ -59,6 +78,27 @@ class PostController {
             'sort' => $sort,
             'categories' => $this->categories->all('name ASC'),
             'activeCategory' => $categorySlug,
+            'jsonLd' => [
+                '@context' => 'https://schema.org',
+                '@graph' => [
+                    [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => array_values(array_filter([
+                            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => url('/blog')],
+                            $category ? ['@type' => 'ListItem', 'position' => 3, 'name' => $category['name'], 'item' => $canonical] : null,
+                        ])),
+                    ],
+                    [
+                        '@type' => 'CollectionPage',
+                        '@id' => $canonical,
+                        'name' => $title,
+                        'description' => $description,
+                        'url' => $canonical,
+                        'mainEntity' => ['@type' => 'ItemList', 'itemListElement' => $jsonLdItems],
+                    ],
+                ],
+            ],
         ], 'frontend');
     }
 
