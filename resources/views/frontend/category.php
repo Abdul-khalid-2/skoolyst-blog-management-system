@@ -2,6 +2,11 @@
 /** Category archive. $category, $posts, $page, $totalPages from CategoryController@show. */
 ?>
 <section class="container">
+  <?php component('breadcrumb', ['items' => [
+    ['label' => 'Home', 'url' => url('/')],
+    ['label' => 'Blog', 'url' => url('/blog')],
+    ['label' => $category['name']],
+  ]]); ?>
   <h1><?= clean($category['name']) ?></h1>
   <?php if (!empty($category['description'])): ?><p><?= clean($category['description']) ?></p><?php endif; ?>
 

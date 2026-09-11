@@ -2,6 +2,12 @@
 /** Single post. $post, $category, $tags, $comments from PostController@show. */
 ?>
 <article class="container post-detail">
+  <?php component('breadcrumb', ['items' => array_values(array_filter([
+    ['label' => 'Home', 'url' => url('/')],
+    ['label' => 'Blog', 'url' => url('/blog')],
+    $category ? ['label' => $category['name'], 'url' => url('/category/' . $category['slug'])] : null,
+    ['label' => $post['title']],
+  ]))]); ?>
   <?php if ($category): ?><p><?php component('badge', ['label' => $category['name'], 'variant' => 'info']); ?></p><?php endif; ?>
   <h1><?= clean($post['title']) ?></h1>
   <?php

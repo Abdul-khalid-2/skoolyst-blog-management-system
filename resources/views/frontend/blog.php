@@ -8,6 +8,10 @@
 <div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
 
 <section class="container">
+  <?php component('breadcrumb', ['items' => [
+    ['label' => 'Home', 'url' => url('/')],
+    ['label' => 'Articles'],
+  ]]); ?>
   <h1>Articles</h1>
 
   <form method="get" action="<?= url('/blog') ?>" class="archive-filters">
