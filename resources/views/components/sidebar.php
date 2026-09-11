@@ -2,7 +2,7 @@
 <div class="admin-sidebar-backdrop" data-sidebar-backdrop></div>
 <aside class="admin-sidebar" data-sidebar>
   <a href="<?= url('/') ?>" class="admin-sidebar-brand">
-    <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img">
+    <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img" width="103" height="32" loading="lazy">
     <span class="brand-logo-word">Blogs</span>
   </a>
   <nav class="admin-sidebar-nav">

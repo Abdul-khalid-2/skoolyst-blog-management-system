@@ -10,6 +10,8 @@ $__ogType = $ogType ?? 'website';
 ?>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="dns-prefetch" href="//cdn.ckeditor.com">
+<link rel="preload" href="<?= asset('assets/css/app.css') ?>" as="style">
 <title><?= clean($title ?? 'Skoolyst Blog') ?></title>
 <?php if (!empty($description)): ?><meta name="description" content="<?= clean($description) ?>"><?php endif; ?>
 <meta name="robots" content="<?= !empty($noindex) ? 'noindex, nofollow' : 'index, follow' ?>">

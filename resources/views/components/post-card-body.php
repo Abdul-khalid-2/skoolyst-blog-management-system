@@ -5,7 +5,7 @@
  */
 ?>
 <div class="post-card-image">
-  <img src="<?= clean($post['cover_image'] ?: url('assets/images/post-placeholder.svg')) ?>" alt="" loading="lazy">
+  <img src="<?= clean($post['cover_image'] ?: url('assets/images/post-placeholder.svg')) ?>" alt="<?= clean($post['title']) ?>" loading="lazy" width="400" height="225">
 </div>
 <h3><a href="<?= url('/post/' . $post['slug']) ?>"><?= clean($post['title']) ?></a></h3>
 <p><?= clean($post['excerpt'] ?? '') ?></p>

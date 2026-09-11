@@ -7,6 +7,8 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
 <html lang="en">
 <head>
 <?php $noindex = true; require __DIR__ . '/../components/head.php'; ?>
+<link rel="preconnect" href="https://cdn.ckeditor.com" crossorigin>
+<link rel="preload" href="<?= asset('assets/css/admin.css') ?>" as="style">
 <link rel="stylesheet" href="<?= asset('assets/css/admin.css') ?>">
 </head>
 <body class="admin-body">
@@ -42,12 +44,12 @@ $pendingCommentsCount = (new \Skoolyst\Models\Comment())->countPending($__topbar
     </div>
   </div>
 </div>
-<script src="<?= asset('assets/js/app.js') ?>"></script>
-<script src="<?= asset('assets/js/admin.js') ?>"></script>
-<script src="<?= asset('assets/js/admin-spa.js') ?>"></script>
-<script src="<?= asset('assets/js/tag-input.js') ?>"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-<script src="<?= asset('assets/js/post-editor.js') ?>"></script>
-<?php if (!empty($extraJs)): ?><script src="<?= asset($extraJs) ?>"></script><?php endif; ?>
+<script defer src="<?= asset('assets/js/app.js') ?>"></script>
+<script defer src="<?= asset('assets/js/admin.js') ?>"></script>
+<script defer src="<?= asset('assets/js/admin-spa.js') ?>"></script>
+<script defer src="<?= asset('assets/js/tag-input.js') ?>"></script>
+<script defer src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+<script defer src="<?= asset('assets/js/post-editor.js') ?>"></script>
+<?php if (!empty($extraJs)): ?><script defer src="<?= asset($extraJs) ?>"></script><?php endif; ?>
 </body>
 </html>

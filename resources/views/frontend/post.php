@@ -15,7 +15,7 @@
     <?= format_date($__published) ?><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views
   </p>
 
-  <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover"><?php endif; ?>
+  <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover" fetchpriority="high" loading="eager"><?php endif; ?>
 
   <div class="post-body"><?= $post['body'] ?></div>
 
