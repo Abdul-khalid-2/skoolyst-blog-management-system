@@ -18,7 +18,7 @@
   $__showUpdated = !empty($post['updated_at']) && (strtotime($post['updated_at']) - strtotime($__published)) > 86400;
   ?>
   <p class="post-meta">
-    <?= format_date($__published) ?><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?> &middot; <?= (int) $post['read_time_minutes'] ?> min read &middot; <?= (int) $post['views'] ?> views
+    <?= format_date($__published) ?><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?><?php if ((int) $post['read_time_minutes'] > 0): ?> &middot; <i class="fa-regular fa-clock" aria-hidden="true"></i> <?= (int) $post['read_time_minutes'] ?> min read<?php endif; ?> &middot; <i class="fa-regular fa-eye" aria-hidden="true"></i> <span id="post-view-count"><?= number_format((int) $post['views']) ?></span> <?= (int) $post['views'] === 1 ? 'view' : 'views' ?> &middot; <i class="fa-regular fa-hourglass-half" aria-hidden="true"></i> <span id="post-read-minutes"><?= number_format((int) round((int) $post['read_seconds'] / 60)) ?></span> min read time
   </p>
 
   <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover" fetchpriority="high" loading="eager"><?php endif; ?>
@@ -64,3 +64,99 @@
     <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
   </section>
 </article>
+<script>
+(function () {
+  var el = document.getElementById('post-view-count');
+  if (!el) return;
+  fetch('<?= url('/post/' . $post['slug'] . '/view') ?>', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: '_csrf=<?= htmlspecialchars(csrf_token(), ENT_QUOTES) ?>'
+  })
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (data) {
+    if (data && typeof data.views === 'number') {
+      el.textContent = data.views.toLocaleString();
+    }
+  })
+  .catch(function () {});
+}());
+
+(function () {
+  var el = document.getElementById('post-read-minutes');
+  if (!el) return;
+  var url = '<?= url('/post/' . $post['slug'] . '/read-time') ?>';
+  var csrf = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES) ?>';
+
+  // Time is accumulated client-side (ticked once a second while the tab is
+  // visible) and flushed in one batched request every ~15-25s instead of a
+  // request every 5s — same accuracy, a fraction of the server load. The
+  // random spread also avoids every open tab on a busy article syncing its
+  // requests to the same instant.
+  var activeSeconds = 0;
+  var tickTimer = null;
+  var flushTimer = null;
+
+  function scheduleFlush() {
+    clearTimeout(flushTimer);
+    var delay = 15000 + Math.floor(Math.random() * 10000);
+    flushTimer = setTimeout(function () { flush(false); scheduleFlush(); }, delay);
+  }
+
+  function flush(useBeacon) {
+    if (activeSeconds <= 0) return;
+    var seconds = activeSeconds;
+    activeSeconds = 0;
+
+    if (useBeacon && navigator.sendBeacon) {
+      var params = new URLSearchParams();
+      params.set('_csrf', csrf);
+      params.set('seconds', seconds);
+      navigator.sendBeacon(url, params);
+      return;
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: '_csrf=' + encodeURIComponent(csrf) + '&seconds=' + seconds,
+      keepalive: true
+    })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (data && typeof data.readMinutes === 'number') {
+        el.textContent = data.readMinutes.toLocaleString();
+      }
+    })
+    .catch(function () {});
+  }
+
+  function start() {
+    if (tickTimer) return;
+    tickTimer = setInterval(function () { activeSeconds++; }, 1000);
+    scheduleFlush();
+  }
+
+  function stop() {
+    clearInterval(tickTimer);
+    clearTimeout(flushTimer);
+    tickTimer = null;
+    // Uses sendBeacon here since the tab may be about to be backgrounded/closed
+    // and a normal fetch could get cancelled before it's sent.
+    flush(true);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop(); else start();
+  });
+  window.addEventListener('pagehide', function () { flush(true); });
+
+  if (!document.hidden) start();
+}());
+</script>

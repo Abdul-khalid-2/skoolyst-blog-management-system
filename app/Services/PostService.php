@@ -89,12 +89,22 @@ class PostService {
         return $related;
     }
 
-    public function bySlug(string $slug, bool $trackView = true): ?array {
+    public function bySlug(string $slug, bool $trackView = false): ?array {
         $post = $this->posts->findBySlug($slug);
         if ($post && $trackView) {
             $this->posts->incrementViews((int) $post['id']);
+            $post['views'] = (int) $post['views'] + 1;
         }
         return $post;
+    }
+
+    public function incrementView(int $id): void {
+        $this->posts->incrementViews($id);
+    }
+
+    /** Cumulative read minutes across all visitors, from 5-second engagement pings. */
+    public function trackReadSeconds(int $id, int $seconds): void {
+        $this->posts->incrementReadSeconds($id, $seconds);
     }
 
     /** $authorId scopes the list to one author's own posts — see Post::paginateForDashboard(). */

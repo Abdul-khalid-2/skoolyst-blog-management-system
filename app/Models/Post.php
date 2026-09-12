@@ -145,4 +145,10 @@ class Post extends Model {
     public function incrementViews(int $id): void {
         $this->pdo()->prepare("UPDATE {$this->table} SET views = views + 1 WHERE id = :id")->execute(['id' => $id]);
     }
+
+    /** $seconds is clamped by the caller to the 5s ping interval, so a single call can't inflate the total. */
+    public function incrementReadSeconds(int $id, int $seconds): void {
+        $stmt = $this->pdo()->prepare("UPDATE {$this->table} SET read_seconds = read_seconds + :seconds WHERE id = :id");
+        $stmt->execute(['seconds' => $seconds, 'id' => $id]);
+    }
 }
