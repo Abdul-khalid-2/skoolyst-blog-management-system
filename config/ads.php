@@ -8,5 +8,9 @@ return [
     // Friendly slot name => placement code registered on ads.skoolyst.com for this app.
     'placements' => [
         'home_top' => (string) ($_ENV['ADS_PLACEMENT_HOME_TOP'] ?? 'home_top'),
+        'blogs_top' => (string) ($_ENV['ADS_PLACEMENT_BLOGS_TOP'] ?? 'blogs_top'),
+        'about_top' => (string) ($_ENV['ADS_PLACEMENT_ABOUT_TOP'] ?? 'about_top'),
+        'contact_top' => (string) ($_ENV['ADS_PLACEMENT_CONTACT_TOP'] ?? 'contact_top'),
+        'post_top' => (string) ($_ENV['ADS_PLACEMENT_POST_TOP'] ?? 'post_top'),
     ],
 ];

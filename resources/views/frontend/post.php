@@ -23,6 +23,8 @@
 
   <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover" fetchpriority="high" loading="eager"><?php endif; ?>
 
+  <?php component('ad-slot', ['placement' => 'post_top']); ?>
+
   <div class="post-body"><?= $post['body'] ?></div>
 
   <?php if (!empty($tags)): ?>
