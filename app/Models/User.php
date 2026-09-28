@@ -58,6 +58,17 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** id/name/email of active accounts with any of $roles — recipients for staff email notifications. */
+    public static function activeWithRoles(array $roles): array {
+        if (!$roles) return [];
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+        $stmt = Database::connection()->prepare(
+            "SELECT id, name, email FROM blog_users WHERE active = 1 AND role IN ({$placeholders})"
+        );
+        $stmt->execute(array_values($roles));
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     /** Every account, for the admin-only Users management page. */
     public static function all(): array {
         $stmt = Database::connection()->query('SELECT * FROM blog_users ORDER BY role, name ASC');

@@ -41,7 +41,7 @@
     </section>
   <?php endif; ?>
 
-  <section class="comments">
+  <section class="comments" id="comments">
     <h2>Comments (<?= count($comments) ?>)</h2>
     <?php if (empty($comments)): ?>
       <p>Be the first to comment.</p>

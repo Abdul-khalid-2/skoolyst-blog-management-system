@@ -8,6 +8,7 @@ use Skoolyst\Core\Response;
 use Skoolyst\Core\Validator;
 use Skoolyst\Core\View;
 use Skoolyst\Models\User;
+use Skoolyst\Services\NotificationService;
 
 /** Admin-only account management (roles, active status, removal) — see AdminMiddleware. */
 class UserController {
@@ -25,7 +26,8 @@ class UserController {
             return Response::redirect(url('/dashboard/users'));
         }
 
-        if (!User::findById($id)) {
+        $before = User::findById($id);
+        if (!$before) {
             flash('error', 'User not found.');
             return Response::redirect(url('/dashboard/users'));
         }
@@ -40,6 +42,7 @@ class UserController {
             'role' => Request::input('role'),
             'active' => Request::input('active') ? 1 : 0,
         ]);
+        (new NotificationService())->accountUpdated($before, User::findById($id), auth_user());
 
         flash('success', 'User updated.');
         return Response::redirect(url('/dashboard/users'));

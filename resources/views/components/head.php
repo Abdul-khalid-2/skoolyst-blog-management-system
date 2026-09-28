@@ -13,6 +13,11 @@ $__ogType = $ogType ?? 'website';
 <link rel="dns-prefetch" href="//cdn.ckeditor.com">
 <link rel="preload" href="<?= asset('assets/css/app.css') ?>" as="style">
 <title><?= clean($title ?? 'Skoolyst Blog') ?></title>
+<link rel="icon" href="<?= asset('favicon.ico') ?>" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="<?= asset('favicon-32x32.png') ?>">
+<link rel="icon" type="image/png" sizes="192x192" href="<?= asset('favicon-192x192.png') ?>">
+<link rel="apple-touch-icon" href="<?= asset('apple-touch-icon.png') ?>">
+<meta name="theme-color" content="#0b1d3a">
 <?php if (!empty($description)): ?><meta name="description" content="<?= clean($description) ?>"><?php endif; ?>
 <meta name="robots" content="<?= !empty($noindex) ? 'noindex, nofollow' : 'index, follow' ?>">
 <link rel="canonical" href="<?= clean($__canonical) ?>">

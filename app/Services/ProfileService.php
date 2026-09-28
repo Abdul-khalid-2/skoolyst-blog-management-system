@@ -25,7 +25,12 @@ class ProfileService {
         }
 
         User::update($userId, $data);
-        Session::put('user', User::forSession(User::findById($userId)));
+        $updated = User::findById($userId);
+        Session::put('user', User::forSession($updated));
+
+        if (isset($data['password'])) {
+            (new NotificationService())->passwordChanged($updated);
+        }
 
         return null;
     }

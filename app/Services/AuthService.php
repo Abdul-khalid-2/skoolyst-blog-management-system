@@ -35,6 +35,8 @@ class AuthService {
         Session::put('user', User::forSession($user));
         User::touchLastLogin($id);
 
+        (new NotificationService())->userRegistered($user);
+
         return null;
     }
 

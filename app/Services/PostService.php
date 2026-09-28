@@ -6,12 +6,14 @@ namespace Skoolyst\Services;
 use Skoolyst\Models\AuditLog;
 use Skoolyst\Models\Post;
 use Skoolyst\Models\Tag;
+use Skoolyst\Models\User;
 
 class PostService {
     public function __construct(
         private Post $posts = new Post(),
         private Tag $tags = new Tag(),
         private AuditLog $audit = new AuditLog(),
+        private NotificationService $notify = new NotificationService(),
     ) {}
 
     public function forHomepage(int $featuredCount = 3, int $latestCount = 3): array {
@@ -123,6 +125,9 @@ class PostService {
         $id = $this->posts->create($data);
         $this->syncTags($id, $tagIds);
         $this->audit->record($authorId, 'post.created', 'post', $id, ['title' => $data['title']]);
+
+        $actor = User::findById($authorId);
+        if ($actor && ($post = $this->posts->find($id))) $this->notify->postCreated($post, $actor);
         return $id;
     }
 
@@ -136,20 +141,27 @@ class PostService {
             $data['body'] = sanitize_html($data['body']);
             $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
         }
+        $before = $this->posts->find($id);
         if (($data['status'] ?? null) === 'published') {
-            $existing = $this->posts->find($id);
-            $data['published_date'] ??= $existing['published_date'] ?? date('Y-m-d');
+            $data['published_date'] ??= $before['published_date'] ?? date('Y-m-d');
         }
 
         $ok = $this->posts->update($id, $data);
         $this->syncTags($id, $tagIds);
         $this->audit->record($userId, 'post.updated', 'post', $id);
+
+        $actor = User::findById($userId);
+        if ($ok && $before && $actor && ($after = $this->posts->find($id))) $this->notify->postUpdated($before, $after, $actor);
         return $ok;
     }
 
     public function delete(int $id, int $userId): bool {
+        $post = $this->posts->find($id);
         $ok = $this->posts->delete($id);
         $this->audit->record($userId, 'post.deleted', 'post', $id);
+
+        $actor = User::findById($userId);
+        if ($ok && $post && $actor) $this->notify->postDeleted($post, $actor);
         return $ok;
     }
 
