@@ -102,8 +102,42 @@ class PostController {
         ], 'frontend');
     }
 
+    public function trackView(string $slug): never {
+        header('Content-Type: application/json');
+        $post = $this->posts->bySlug($slug, false);
+        if (!$post || ($post['status'] ?? '') !== 'published') {
+            echo json_encode(['views' => 0]);
+            exit;
+        }
+        $this->posts->incrementView((int) $post['id']);
+        $newCount = (int) $post['views'] + 1;
+        echo json_encode(['views' => $newCount]);
+        exit;
+    }
+
+    /**
+     * Pinged by the reading-time tracker on the post page: it accumulates active
+     * seconds client-side and batches them into one request every ~15-25s (plus a
+     * final flush on tab hide/close), rather than one request per 5s tick.
+     * $seconds is clamped to that window (+buffer) so a tampered/replayed request
+     * can't inflate the total beyond what one real flush interval could produce.
+     */
+    public function trackReadTime(string $slug): never {
+        header('Content-Type: application/json');
+        $post = $this->posts->bySlug($slug, false);
+        if (!$post || ($post['status'] ?? '') !== 'published') {
+            echo json_encode(['readSeconds' => 0, 'readMinutes' => 0]);
+            exit;
+        }
+        $seconds = min(30, max(1, (int) Request::input('seconds', 0)));
+        $this->posts->trackReadSeconds((int) $post['id'], $seconds);
+        $newTotal = (int) $post['read_seconds'] + $seconds;
+        echo json_encode(['readSeconds' => $newTotal, 'readMinutes' => (int) round($newTotal / 60)]);
+        exit;
+    }
+
     public function show(string $slug): mixed {
-        $post = $this->posts->bySlug($slug);
+        $post = $this->posts->bySlug($slug, false);
         if (!$post) {
             http_response_code(404);
             return View::render('errors/404', [], 'frontend');

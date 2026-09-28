@@ -1,4 +1,4 @@
-<div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
+<div class="container"><?php component('ad-slot', ['placement' => 'contact_top']); ?></div>
 
 <?php /** Contact page. Submits to PageController@submitContact. */ ?>
 <section class="container">

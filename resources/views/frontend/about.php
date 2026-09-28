@@ -4,6 +4,8 @@
   <p>Skoolyst is an education-focused platform that shares practical knowledge, useful resources, and thoughtful insights for students, teachers, parents, schools, and education professionals.</p>
 </section>
 
+<div class="container"><?php component('ad-slot', ['placement' => 'about_top']); ?></div>
+
 <section class="container about-section">
   <h2>Who We Are</h2>
   <p>Skoolyst is built around a simple idea: good educational information should be easy to find, easy to understand, and useful in real life.</p>

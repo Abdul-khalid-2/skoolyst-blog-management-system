@@ -5,7 +5,7 @@
  */
 ?>
 
-<div class="container"><?php component('ad-slot', ['placement' => 'home_top']); ?></div>
+<div class="container"><?php component('ad-slot', ['placement' => 'blogs_top']); ?></div>
 
 <section class="container">
   <?php component('breadcrumb', ['items' => [
