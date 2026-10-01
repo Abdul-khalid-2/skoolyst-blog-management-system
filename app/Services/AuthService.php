@@ -31,9 +31,7 @@ class AuthService {
         $id = User::create($name, $email, $password, $role);
         $user = User::findById($id);
 
-        Session::regenerate();
-        Session::put('user', User::forSession($user));
-        User::touchLastLogin($id);
+        $this->startSession($user);
 
         (new NotificationService())->userRegistered($user);
 
@@ -61,11 +59,16 @@ class AuthService {
         }
 
         $this->clearFailures();
+        $this->startSession($user);
+
+        return null;
+    }
+
+    /** Log $user in — shared by password login, signup and "Login with Skoolyst" (SkoolystAuthService). */
+    public function startSession(array $user): void {
         Session::regenerate();
         Session::put('user', User::forSession($user));
         User::touchLastLogin((int) $user['id']);
-
-        return null;
     }
 
     public function logout(): void {

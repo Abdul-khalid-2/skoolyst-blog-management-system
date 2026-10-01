@@ -190,6 +190,10 @@ textarea.form-control { min-height:120px; resize:vertical; }
 .auth-brand .brand-logo-word { color:var(--skoolyst-blue); }
 .auth-card form { text-align:left; }
 .auth-switch { margin-top:1rem; font-size:.9rem; color:var(--muted); }
+.btn-sso { width:100%; gap:.6rem; margin-top:.5rem; }
+.btn-sso img { border-radius:4px; }
+.auth-divider { display:flex; align-items:center; gap:.75rem; margin:1.25rem 0; color:var(--muted); font-size:.85rem; }
+.auth-divider::before, .auth-divider::after { content:""; flex:1; height:1px; background:var(--border, #e5e7eb); }
 
 /* ---- Phase 6 additions ---- */
 .archive-filters { display:flex; gap:.75rem; flex-wrap:wrap; margin:1.5rem 0; }

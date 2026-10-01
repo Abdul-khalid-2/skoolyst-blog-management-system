@@ -46,4 +46,10 @@ $router->get('/signup', [AuthController::class, 'showSignup'], ['Guest']);
 $router->post('/signup', [AuthController::class, 'signup'], ['Guest']);
 $router->get('/logout', [AuthController::class, 'logout'], ['Auth']);
 
+// Login with Skoolyst (central identity provider on skoolyst.com) — see SkoolystAuthService.
+$router->get('/auth/skoolyst', [AuthController::class, 'skoolystRedirect'], ['Guest']);
+$router->get('/auth/skoolyst/callback', [AuthController::class, 'skoolystCallback'], ['Guest']);
+$router->get('/auth/skoolyst/account-type', [AuthController::class, 'showSkoolystRole'], ['Guest']);
+$router->post('/auth/skoolyst/account-type', [AuthController::class, 'completeSkoolystSignup'], ['Guest']);
+
 return $router;

@@ -41,6 +41,24 @@ class User {
         return (int) Database::connection()->lastInsertId();
     }
 
+    public static function findBySkoolystId(int $skoolystId): ?array {
+        $stmt = Database::connection()->prepare('SELECT * FROM blog_users WHERE skoolyst_id = :sid LIMIT 1');
+        $stmt->execute(['sid' => $skoolystId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user ?: null;
+    }
+
+    /**
+     * Account provisioned by "Login with Skoolyst". It gets a random, never-disclosed
+     * password so the NOT NULL column holds and password login simply can't succeed —
+     * the user always signs in through skoolyst.com.
+     */
+    public static function createFromSkoolyst(int $skoolystId, string $name, string $email, string $role): int {
+        $id = self::create($name, $email, bin2hex(random_bytes(32)), $role);
+        self::update($id, ['skoolyst_id' => $skoolystId]);
+        return $id;
+    }
+
     /** Update a user's own fillable fields (e.g. name, password — the password value passed in must already be hashed). */
     public static function update(int $id, array $data): bool {
         if (!$data) return false;
