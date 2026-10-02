@@ -8,6 +8,7 @@ use Skoolyst\Core\Response;
 use Skoolyst\Core\Validator;
 use Skoolyst\Core\View;
 use Skoolyst\Services\AuthService;
+use Skoolyst\Services\GoogleAuthService;
 use Skoolyst\Services\SkoolystAuthService;
 
 /**
@@ -145,6 +146,42 @@ class AuthController {
         }
         flash('success', 'Welcome to Skoolyst Blog!');
         return $this->redirectAfterLogin((string) (auth_user()['role'] ?? $role));
+    }
+
+    // --- Continue with Google (GoogleAuthService) ---
+
+    public function googleRedirect(): never {
+        $google = new GoogleAuthService();
+        if (!$google->isConfigured()) {
+            flash('error', 'Continue with Google is not available right now. Please use another sign-in option.');
+            Response::redirect(url('/login'));
+        }
+        Response::redirect($google->authorizeUrl());
+    }
+
+    public function googleCallback(): never {
+        // access_denied = the user cancelled on Google's consent screen; just return to login quietly.
+        $error = Request::query('error');
+        if ($error !== null) {
+            if ($error !== 'access_denied') flash('error', 'Google sign-in failed. Please try again.');
+            Response::redirect(url('/login'));
+        }
+
+        $google = new GoogleAuthService();
+        try {
+            $identity = $google->handleCallback((string) Request::query('code', ''), (string) Request::query('state', ''));
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+            Response::redirect(url('/login'));
+        }
+
+        $result = $google->resolve($identity);
+        if ($result['status'] !== 'logged_in') {
+            flash('error', $result['message']);
+            Response::redirect(url('/login'));
+        }
+        if ($result['created']) flash('success', 'Welcome to Skoolyst Blog!');
+        $this->redirectAfterLogin((string) $result['user']['role']);
     }
 
     private function redirectAfterLogin(string $role): never {

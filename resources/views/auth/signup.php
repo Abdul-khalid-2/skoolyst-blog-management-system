@@ -7,7 +7,7 @@
 $title = 'Sign Up';
 ?>
 <h2>Create your account</h2>
-<?php component('skoolyst-login', ['label' => 'Sign up with Skoolyst']); ?>
+<?php component('social-login', ['mode' => 'signup']); ?>
 <form method="post" action="<?= url('/signup') ?>">
   <?= csrf_field() ?>
   <?php component('input', ['type' => 'text', 'name' => 'name', 'label' => 'Name', 'required' => true, 'error' => $errors['name'] ?? null, 'autocomplete' => 'name']); ?>

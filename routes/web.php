@@ -52,4 +52,8 @@ $router->get('/auth/skoolyst/callback', [AuthController::class, 'skoolystCallbac
 $router->get('/auth/skoolyst/account-type', [AuthController::class, 'showSkoolystRole'], ['Guest']);
 $router->post('/auth/skoolyst/account-type', [AuthController::class, 'completeSkoolystSignup'], ['Guest']);
 
+// Continue with Google (this app's own Google OAuth client) — see GoogleAuthService.
+$router->get('/auth/google', [AuthController::class, 'googleRedirect'], ['Guest']);
+$router->get('/auth/google/callback', [AuthController::class, 'googleCallback'], ['Guest']);
+
 return $router;

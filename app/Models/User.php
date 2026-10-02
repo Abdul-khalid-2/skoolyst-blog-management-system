@@ -59,6 +59,20 @@ class User {
         return $id;
     }
 
+    public static function findByGoogleId(string $googleId): ?array {
+        $stmt = Database::connection()->prepare('SELECT * FROM blog_users WHERE google_id = :gid LIMIT 1');
+        $stmt->execute(['gid' => $googleId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user ?: null;
+    }
+
+    /** Account provisioned by "Continue with Google" — random undisclosed password, same reasoning as createFromSkoolyst(). */
+    public static function createFromGoogle(string $googleId, string $name, string $email, string $role): int {
+        $id = self::create($name, $email, bin2hex(random_bytes(32)), $role);
+        self::update($id, ['google_id' => $googleId]);
+        return $id;
+    }
+
     /** Update a user's own fillable fields (e.g. name, password — the password value passed in must already be hashed). */
     public static function update(int $id, array $data): bool {
         if (!$data) return false;

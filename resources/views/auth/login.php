@@ -6,7 +6,7 @@
 $title = 'Login';
 ?>
 <h2>Sign in</h2>
-<?php component('skoolyst-login', ['label' => 'Login with Skoolyst']); ?>
+<?php component('social-login'); ?>
 <form method="post" action="<?= url('/login') ?>">
   <?= csrf_field() ?>
   <?php component('input', ['type' => 'email', 'name' => 'email', 'label' => 'Email', 'required' => true, 'error' => $errors['email'] ?? null, 'autocomplete' => 'username']); ?>
