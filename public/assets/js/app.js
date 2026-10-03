@@ -21,6 +21,18 @@ document.addEventListener('click', function (e) {
     return;
   }
 
+  // Password show/hide eye toggle (components/input.php, type=password)
+  var pwToggle = e.target.closest('[data-password-toggle]');
+  if (pwToggle) {
+    var pwInput = document.getElementById(pwToggle.getAttribute('data-password-toggle'));
+    if (!pwInput) return;
+    var show = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    pwToggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+    pwToggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    return;
+  }
+
   // Modals: open via [data-modal-open="modal-id"], close via [data-modal-close] or backdrop
   var openBtn = e.target.closest('[data-modal-open]');
   if (openBtn) {

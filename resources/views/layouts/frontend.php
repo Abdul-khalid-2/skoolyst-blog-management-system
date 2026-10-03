@@ -30,6 +30,7 @@
   <div class="container"><?php component('alert', ['type' => in_array($flashType, ['success','error','warning','info'], true) ? $flashType : 'info', 'message' => $flashMessage]); unset($_SESSION['_flash'][$flashType]); ?></div>
 <?php endif; endforeach; ?>
 <main class="site-main"><?= $content ?? '' ?></main>
+<?php require __DIR__ . '/../components/skoolyst-apps.php'; ?>
 <?php require __DIR__ . '/../components/footer.php'; ?>
 <script src="<?= asset('assets/js/app.js') ?>"></script>
 <?php if (!empty($extraJs)): ?><script src="<?= asset($extraJs) ?>"></script><?php endif; ?>

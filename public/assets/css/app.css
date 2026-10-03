@@ -232,3 +232,51 @@ textarea.form-control { min-height:120px; resize:vertical; }
   .ad-slot-card { flex-direction:column; align-items:flex-start; }
   .ad-slot-card img { width:100%; height:140px; }
 }
+
+/* ===== Other Skoolyst Apps (cards above the footer) ===== */
+.skoolyst-apps {
+    --sk-primary: #0A2D52; --sk-primary-soft: #eef3f8; --sk-text: #1c2b3a; --sk-muted: #63758a;
+    --sk-border: #e4e9f0; --sk-radius: 12px;
+    --sk-shadow: 0 6px 24px rgba(10, 45, 82, 0.08); --sk-shadow-hover: 0 12px 32px rgba(10, 45, 82, 0.14);
+    background: #fff; border-top: 1px solid var(--sk-border); padding: 48px 0; margin-top: 40px;
+    font-family: 'Poppins', 'Segoe UI', sans-serif; line-height: 1.6;
+}
+.skoolyst-apps *, .skoolyst-apps *::before, .skoolyst-apps *::after { box-sizing: border-box; }
+.skoolyst-apps-inner { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.skoolyst-apps-title { text-align: center; font-size: 24px; font-weight: 700; color: var(--sk-primary); margin: 0 0 28px; }
+.skoolyst-apps-grid { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+.skoolyst-apps-grid li { flex: 0 1 calc((100% - 36px) / 3); margin: 0; padding: 0; }
+.skoolyst-apps-grid li::before, .skoolyst-apps-grid li::marker { content: none; }
+.skoolyst-app-card {
+    display: flex; flex-direction: column; height: 100%; padding: 22px; background: #fff; text-decoration: none;
+    border: 1px solid var(--sk-border); border-radius: var(--sk-radius); box-shadow: var(--sk-shadow); transition: .25s;
+}
+.skoolyst-app-card:hover, .skoolyst-app-card:focus-visible {
+    box-shadow: var(--sk-shadow-hover); transform: translateY(-4px); border-color: var(--sk-primary); outline: none; text-decoration: none;
+}
+.skoolyst-app-icon {
+    width: 44px; height: 44px; border-radius: 10px; background: var(--sk-primary-soft); color: var(--sk-primary);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; margin-bottom: 14px;
+}
+.skoolyst-app-name { font-weight: 600; font-size: 17px; color: var(--sk-text); margin-bottom: 4px; }
+.skoolyst-app-desc { color: var(--sk-muted); font-size: 13.5px; line-height: 1.55; }
+@media (max-width: 860px) { .skoolyst-apps-grid li { flex-basis: calc((100% - 18px) / 2); } }
+@media (max-width: 560px) {
+    .skoolyst-apps { padding: 36px 0; }
+    .skoolyst-apps-inner { padding: 0 16px; }
+    .skoolyst-apps-title { font-size: 21px; }
+    .skoolyst-apps-grid { gap: 14px; }
+    .skoolyst-apps-grid li { flex-basis: 100%; }
+}
+.skoolyst-apps + .site-footer { margin-top: 0; }
+
+/* ===== Password show/hide toggle (components/input.php) ===== */
+.password-field { position:relative; }
+.password-field .form-control { padding-right:2.75rem; }
+.password-toggle { position:absolute; top:50%; right:.35rem; transform:translateY(-50%); width:2.25rem; height:2.25rem; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:var(--radius); background:transparent; color:var(--muted); cursor:pointer; padding:0; }
+.password-toggle:hover, .password-toggle:focus-visible { color:var(--skoolyst-blue); }
+.password-toggle:focus-visible { outline:2px solid var(--skoolyst-blue); outline-offset:1px; }
+.password-toggle .icon-eye-off, .password-toggle[aria-pressed="true"] .icon-eye { display:none; }
+.password-toggle[aria-pressed="true"] .icon-eye-off { display:inline; }
+/* Hide Edge/IE's own reveal button so there aren't two eyes. */
+.password-field input::-ms-reveal, .password-field input::-ms-clear { display:none; }
