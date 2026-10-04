@@ -11,11 +11,15 @@ class DashboardController {
     public function __construct(private DashboardService $dashboard = new DashboardService()) {}
 
     public function index(): void {
+        // Authors/editors see only their own posts' numbers; admins see the whole site.
+        $authorId = $this->dashboard->scopeFor(auth_user());
+
         View::render('admin/dashboard', [
             'title' => 'Dashboard',
             'activeNav' => 'dashboard',
-            'stats' => $this->dashboard->stats(),
-            'recentPosts' => $this->dashboard->recentPosts(),
+            'stats' => $this->dashboard->stats($authorId),
+            'recentPosts' => $this->dashboard->recentPosts($authorId),
+            'ownOnly' => $authorId !== null,
         ], 'admin');
     }
 }

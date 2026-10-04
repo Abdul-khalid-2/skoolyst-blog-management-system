@@ -1,10 +1,11 @@
 <?php
-/** Admin dashboard overview. $stats, $recentPosts from DashboardController@index. */
+/** Admin dashboard overview. $stats, $recentPosts, $ownOnly (true = numbers cover only the signed-in user's posts) from DashboardController@index. */
+$ownOnly = !empty($ownOnly);
 $statCards = [
-    ['label' => 'Published Posts', 'value' => $stats['published']],
-    ['label' => 'Draft Posts', 'value' => $stats['draft']],
-    ['label' => 'Pending Comments', 'value' => $stats['comments']],
-    ['label' => 'Total Views', 'value' => $stats['views']],
+    ['label' => $ownOnly ? 'My Published Posts' : 'Published Posts', 'value' => $stats['published']],
+    ['label' => $ownOnly ? 'My Draft Posts' : 'Draft Posts', 'value' => $stats['draft']],
+    ['label' => $ownOnly ? 'Pending Comments on My Posts' : 'Pending Comments', 'value' => $stats['comments']],
+    ['label' => $ownOnly ? 'Views on My Posts' : 'Total Views', 'value' => $stats['views']],
 ];
 ?>
 <div class="stat-grid">
@@ -15,7 +16,7 @@ $statCards = [
   <?php endforeach; ?>
 </div>
 
-<h2>Recent Posts</h2>
+<h2><?= $ownOnly ? 'My Recent Posts' : 'Recent Posts' ?></h2>
 <?php
 component('table', [
     'headers' => ['Title', 'Status', 'Updated'],
