@@ -8,7 +8,7 @@
   <div class="auth-card">
     <a href="<?= url('/') ?>" class="auth-back">&larr; Back to site</a>
     <p class="auth-brand">
-      <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img" width="116" height="36" fetchpriority="high">
+      <picture><source srcset="<?= url('assets/images/skoolyst-blog-sm.webp') ?>" type="image/webp"><img src="<?= url('assets/images/skoolyst-blog-sm.png') ?>" alt="Skoolyst" class="brand-logo-img" width="116" height="36" fetchpriority="high" decoding="async"></picture>
       <span class="brand-logo-word">Blogs</span>
     </p>
     <?php foreach (($_SESSION['_flash'] ?? []) as $flashType => $flashMessage): if ($flashMessage): ?>

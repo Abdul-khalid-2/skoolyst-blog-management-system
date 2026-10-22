@@ -2,7 +2,7 @@
 <header class="site-navbar">
   <div class="container navbar-inner">
     <a href="<?= url('/') ?>" class="navbar-brand">
-      <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img" width="97" height="30" fetchpriority="high">
+      <picture><source srcset="<?= url('assets/images/skoolyst-blog-sm.webp') ?>" type="image/webp"><img src="<?= url('assets/images/skoolyst-blog-sm.png') ?>" alt="Skoolyst" class="brand-logo-img" width="97" height="30" fetchpriority="high" decoding="async"></picture>
       <span class="brand-logo-word">Blogs</span>
     </a>
 

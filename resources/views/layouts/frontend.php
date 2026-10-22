@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="<?= clean($htmlLang ?? 'en') ?>">
 <head>
 <?php require __DIR__ . '/../components/head.php'; ?>
 <script type="application/ld+json"><?= json_encode([
@@ -10,6 +10,7 @@
       'name' => 'Skoolyst',
       'url' => url('/'),
       'logo' => url('assets/images/skoolyst-blog.png'),
+      'sameAs' => ['https://skoolyst.com'],
     ],
     [
       '@type' => 'WebSite',
@@ -32,7 +33,7 @@
 <main class="site-main"><?= $content ?? '' ?></main>
 <?php require __DIR__ . '/../components/skoolyst-apps.php'; ?>
 <?php require __DIR__ . '/../components/footer.php'; ?>
-<script src="<?= asset('assets/js/app.js') ?>"></script>
-<?php if (!empty($extraJs)): ?><script src="<?= asset($extraJs) ?>"></script><?php endif; ?>
+<script defer src="<?= asset('assets/js/app.js') ?>"></script>
+<?php if (!empty($extraJs)): ?><script defer src="<?= asset($extraJs) ?>"></script><?php endif; ?>
 </body>
 </html>

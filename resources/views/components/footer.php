@@ -3,7 +3,7 @@
   <div class="container footer-inner">
     <div class="footer-brand">
       <p class="footer-logo">
-        <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img" width="90" height="28" loading="lazy">
+        <picture><source srcset="<?= url('assets/images/skoolyst-blog-sm.webp') ?>" type="image/webp"><img src="<?= url('assets/images/skoolyst-blog-sm.png') ?>" alt="Skoolyst" class="brand-logo-img" width="90" height="28" loading="lazy" decoding="async"></picture>
         <span class="brand-logo-word">Blogs</span>
       </p>
       <p class="footer-tagline">Insights, updates and stories from the Skoolyst team.</p>

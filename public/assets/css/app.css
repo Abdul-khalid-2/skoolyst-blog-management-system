@@ -280,3 +280,10 @@ textarea.form-control { min-height:120px; resize:vertical; }
 .password-toggle[aria-pressed="true"] .icon-eye-off { display:inline; }
 /* Hide Edge/IE's own reveal button so there aren't two eyes. */
 .password-field input::-ms-reveal, .password-field input::-ms-clear { display:none; }
+
+/* Inline SVG icons (replaces Font Awesome, which was never loaded) */
+.icon { width:1em; height:1em; flex-shrink:0; vertical-align:-.125em; }
+.post-meta .icon { margin-inline-end:.15rem; }
+.post-cover { height:auto; aspect-ratio:1200/630; object-fit:cover; }
+.pagination-item.is-disabled { opacity:.5; pointer-events:none; }
+.post-body[dir="rtl"] { text-align:right; line-height:2; }

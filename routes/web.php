@@ -35,6 +35,7 @@ $router->post('/contact', [PageController::class, 'submitContact']);
 $router->post('/newsletter', [PageController::class, 'newsletter']);
 $router->get('/media/{filename}', [MediaController::class, 'serve']);
 $router->get('/sitemap.xml', [SitemapController::class, 'index']);
+$router->get('/feed.xml', [\Skoolyst\Controllers\FeedController::class, 'index']);
 $router->get('/robots.txt', [RobotsController::class, 'index']);
 
 $router->post('/ads/track/impression', [AdController::class, 'impression']);
