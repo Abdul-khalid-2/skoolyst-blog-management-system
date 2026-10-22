@@ -36,6 +36,9 @@
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; ?>
   </div>
+  <div class="section-cta">
+    <?php component('button', ['label' => 'Read all articles →', 'type' => 'link', 'href' => url('/blog'), 'variant' => 'primary']); ?>
+  </div>
 </section>
 <?php endif; ?>
 

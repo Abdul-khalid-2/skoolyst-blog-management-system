@@ -29,7 +29,7 @@
     <?php component('button', ['label' => 'Filter', 'type' => 'submit']); ?>
   </form>
 
-  <div class="post-grid">
+  <div class="post-grid post-grid--4">
     <?php if (empty($posts)): ?>
       <?php component('empty-state', ['title' => 'No articles found', 'message' => 'Try a different search or filter.']); ?>
     <?php else: foreach ($posts as $__i => $post): ob_start(); ?>

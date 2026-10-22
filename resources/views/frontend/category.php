@@ -10,7 +10,7 @@
   <h1><?= clean($category['name']) ?></h1>
   <?php if (!empty($category['description'])): ?><p><?= clean($category['description']) ?></p><?php endif; ?>
 
-  <div class="post-grid">
+  <div class="post-grid post-grid--4">
     <?php if (empty($posts)): ?>
       <?php component('empty-state', ['title' => 'No articles in this category yet']); ?>
     <?php else: foreach ($posts as $post): ob_start(); ?>
