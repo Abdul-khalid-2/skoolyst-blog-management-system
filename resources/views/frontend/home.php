@@ -20,8 +20,8 @@
   <div class="post-grid">
     <?php if (empty($featured)): ?>
       <?php component('empty-state', ['title' => 'No posts yet', 'message' => 'Published posts will appear here.']); ?>
-    <?php else: foreach ($featured as $post): ob_start(); ?>
-      <?php component('post-card-body', ['post' => $post]); ?>
+    <?php else: foreach ($featured as $__i => $post): ob_start(); ?>
+      <?php component('post-card-body', ['post' => $post, 'eager' => ($__i ?? 1) === 0]); ?>
       <?php $body = ob_get_clean(); component('card', ['body' => $body]); ?>
     <?php endforeach; endif; ?>
   </div>

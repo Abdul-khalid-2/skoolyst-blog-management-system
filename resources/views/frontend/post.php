@@ -9,7 +9,7 @@
     ['label' => $post['title']],
   ]))]); ?>
   <?php if ($category): ?><p><?php component('badge', ['label' => $category['name'], 'variant' => 'info']); ?></p><?php endif; ?>
-  <h1><?= clean($post['title']) ?></h1>
+  <h1 dir="auto"><?= clean($post['title']) ?></h1>
   <?php
   $__published = $post['published_date'] ?? $post['created_at'];
   // Only surfaces "Updated" when it's a real, meaningfully later revision (not the
@@ -18,14 +18,14 @@
   $__showUpdated = !empty($post['updated_at']) && (strtotime($post['updated_at']) - strtotime($__published)) > 86400;
   ?>
   <p class="post-meta">
-    <?= format_date($__published) ?><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?><?php if ((int) $post['read_time_minutes'] > 0): ?> &middot; <i class="fa-regular fa-clock" aria-hidden="true"></i> <?= (int) $post['read_time_minutes'] ?> min read<?php endif; ?> &middot; <i class="fa-regular fa-eye" aria-hidden="true"></i> <span id="post-view-count"><?= number_format((int) $post['views']) ?></span> <?= (int) $post['views'] === 1 ? 'view' : 'views' ?> &middot; <i class="fa-regular fa-hourglass-half" aria-hidden="true"></i> <span id="post-read-minutes"><?= number_format((int) round((int) $post['read_seconds'] / 60)) ?></span> min read time
+    <time datetime="<?= date('c', strtotime($__published)) ?>"><?= format_date($__published) ?></time><?= $__showUpdated ? ' &middot; updated ' . format_date($post['updated_at']) : '' ?><?= $author ? ' &middot; by ' . clean($author['name']) : '' ?><?php if ((int) $post['read_time_minutes'] > 0): ?> &middot; <?= icon('clock') ?> <?= (int) $post['read_time_minutes'] ?> min read<?php endif; ?> &middot; <?= icon('eye') ?> <span id="post-view-count"><?= number_format((int) $post['views']) ?></span> <?= (int) $post['views'] === 1 ? 'view' : 'views' ?> &middot; <?= icon('hourglass') ?> <span id="post-read-minutes"><?= number_format((int) round((int) $post['read_seconds'] / 60)) ?></span> min total reading time
   </p>
 
-  <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover" fetchpriority="high" loading="eager"><?php endif; ?>
+  <?php if (!empty($post['cover_image'])): ?><img src="<?= clean($post['cover_image']) ?>" alt="<?= clean($post['title']) ?>" class="post-cover" width="1200" height="630" fetchpriority="high" loading="eager" decoding="async"><?php endif; ?>
 
   <?php component('ad-slot', ['placement' => 'post_top']); ?>
 
-  <div class="post-body"><?= $post['body'] ?></div>
+  <div class="post-body" lang="<?= clean($htmlLang ?? 'en') ?>" dir="<?= ($htmlLang ?? 'en') === 'ur' ? 'rtl' : 'ltr' ?>"><?= $post['body'] ?></div>
 
   <?php if (!empty($tags)): ?>
     <p class="post-tags"><?php foreach ($tags as $tag): component('badge', ['label' => $tag['name'], 'variant' => 'default']); endforeach; ?></p>

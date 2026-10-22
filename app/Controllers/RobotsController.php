@@ -15,6 +15,9 @@ class RobotsController {
             "Disallow: /login\n" .
             "Disallow: /signup\n" .
             "Disallow: /ads/track/\n" .
+            "Disallow: /*?q=\n" .
+            "Disallow: /*&q=\n" .
+            "Disallow: /*sort=\n" .
             "\n" .
             "Sitemap: {$sitemap}\n"
         );

@@ -127,7 +127,7 @@ class PostService {
         $data['slug'] = $this->slugify(($data['slug'] ?? '') !== '' ? $data['slug'] : $data['title']);
         $data['author_id'] = $authorId;
         $data['body'] = sanitize_html($data['body'] ?? '');
-        $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
+        $data['read_time_minutes'] = reading_minutes($data['body']);
         if (($data['status'] ?? 'draft') === 'published') {
             $data['published_date'] ??= date('Y-m-d');
         }
@@ -149,7 +149,7 @@ class PostService {
         }
         if (isset($data['body'])) {
             $data['body'] = sanitize_html($data['body']);
-            $data['read_time_minutes'] = max(1, (int) ceil(str_word_count(strip_tags($data['body'])) / 200));
+            $data['read_time_minutes'] = reading_minutes($data['body']);
         }
         $before = $this->posts->find($id);
         if (($data['status'] ?? null) === 'published') {

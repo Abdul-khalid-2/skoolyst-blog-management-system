@@ -24,8 +24,12 @@ class PostController {
     public function home(): void {
         $sections = $this->posts->forHomepage();
         View::render('frontend/home', [
-            'title' => 'Skoolyst Blog — Home',
-            'description' => 'Product news, teaching resources and community stories from Skoolyst.',
+            'title' => 'Skoolyst Blog — Education News, Teacher Resources & School Guides',
+            'description' => 'Practical guides for Pakistani schools, teachers and parents: school safety and compliance, AI in education, teaching resources and EdTech news from Skoolyst.',
+            'ogImage' => url('assets/images/og-default.png'),
+            'ogImageW' => 1200,
+            'ogImageH' => 630,
+            'ogImageAlt' => 'Skoolyst Blog',
             'canonical' => url('/'),
             'activeNav' => 'home',
             'featured' => $sections['featured'],
@@ -47,6 +51,9 @@ class PostController {
         // 'sort', which would otherwise generate near-duplicate indexable URLs for
         // every query/sort combination of the same underlying content.
         $canonical = url('/blog') . ($categorySlug ? '?category=' . urlencode($categorySlug) : '');
+        // Paginated archives are self-canonical (page 2 is not a duplicate of page 1).
+        $pageSuffix = $page > 1 ? (str_contains($canonical, '?') ? '&' : '?') . 'page=' . $page : '';
+        $pageUrl = fn (int $n) => url('/blog') . ($categorySlug ? '?category=' . urlencode($categorySlug) : '') . ($n > 1 ? ($categorySlug ? '&' : '?') . 'page=' . $n : '');
 
         if ($category) {
             $title = $category['name'] . ' Articles — Skoolyst Blog';
@@ -62,14 +69,21 @@ class PostController {
         $jsonLdItems = array_map(fn ($post, $i) => [
             '@type' => 'ListItem',
             'position' => $i + 1,
+            'url' => url('/post/' . $post['slug']),
             'item' => ['@type' => 'BlogPosting', 'headline' => $post['title'], 'url' => url('/post/' . $post['slug'])],
         ], $result['data'], array_keys($result['data']));
 
         View::render('frontend/blog', [
             'title' => $title,
             'description' => $description,
-            'canonical' => $canonical,
-            'ogImage' => url('assets/images/skoolyst-blog.png'),
+            'canonical' => $canonical . $pageSuffix,
+            'noindex' => $search !== '' || $sort !== 'newest' || ($page > 1 && empty($result['data'])),
+            'prevUrl' => $result['page'] > 1 ? $pageUrl($result['page'] - 1) : null,
+            'nextUrl' => $result['page'] < $result['totalPages'] ? $pageUrl($result['page'] + 1) : null,
+            'ogImage' => url('assets/images/og-default.png'),
+            'ogImageW' => 1200,
+            'ogImageH' => 630,
+            'ogImageAlt' => 'Skoolyst Blog',
             'activeNav' => 'blog',
             'posts' => $result['data'],
             'page' => $result['page'],
@@ -147,12 +161,23 @@ class PostController {
         $author = $post['author_id'] ? \Skoolyst\Models\User::findById((int) $post['author_id']) : null;
 
         $canonical = url('/post/' . $post['slug']);
+        $lang = content_lang($post['title'] . ' ' . ($post['excerpt'] ?? ''));
+        $tagNames = array_column($this->posts->tagsFor((int) $post['id']), 'name');
+        $published = date('c', strtotime($post['published_date'] ?? $post['created_at']));
+        $modified = date('c', strtotime($post['updated_at'] ?? $post['created_at']));
+        $metaDescription = $post['seo_description'] ?: seo_trim((string) ($post['excerpt'] ?: $post['body']));
         View::render('frontend/post', [
+            'htmlLang' => $lang,
+            'publishedTime' => $published,
+            'modifiedTime' => $modified,
+            'articleSection' => $category['name'] ?? null,
+            'articleTags' => $tagNames,
+            'ogImageAlt' => $post['title'],
             'title' => $post['seo_title'] ?: $post['title'],
-            'description' => $post['seo_description'] ?: $post['excerpt'],
+            'description' => $metaDescription,
             'canonical' => $canonical,
             'ogType' => 'article',
-            'ogImage' => $post['cover_image'],
+            'ogImage' => $post['cover_image'] ?: url('assets/images/og-default.png'),
             'activeNav' => 'blog',
             'post' => $post,
             'category' => $category,
@@ -166,22 +191,27 @@ class PostController {
                     [
                         '@type' => 'BlogPosting',
                         'headline' => $post['title'],
-                        'description' => $post['seo_description'] ?: $post['excerpt'],
+                        'description' => $metaDescription,
+                        'inLanguage' => $lang,
+                        'wordCount' => word_count_unicode($post['body']),
+                        'articleSection' => $category['name'] ?? null,
+                        'keywords' => $tagNames ? implode(', ', $tagNames) : null,
+                        'isAccessibleForFree' => true,
                         'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $canonical],
                         'url' => $canonical,
                         'datePublished' => date('c', strtotime($post['published_date'] ?? $post['created_at'])),
                         'dateModified' => date('c', strtotime($post['updated_at'] ?? $post['created_at'])),
-                        'image' => $post['cover_image'] ?: null,
+                        'image' => [$post['cover_image'] ?: url('assets/images/og-default.png')],
                         // Never fabricate a byline: attribute to the real blog_users author when
                         // one is set, otherwise fall back to the Organization itself (still a
                         // true statement — Skoolyst genuinely published it — not an invented name.
                         'author' => $author
-                            ? ['@type' => 'Person', 'name' => $author['name']]
+                            ? ['@type' => 'Person', 'name' => $author['name'], 'url' => url('/')]
                             : ['@type' => 'Organization', 'name' => 'Skoolyst'],
                         'publisher' => [
                             '@type' => 'Organization',
                             'name' => 'Skoolyst',
-                            'logo' => ['@type' => 'ImageObject', 'url' => url('assets/images/skoolyst-blog.png')],
+                            'logo' => ['@type' => 'ImageObject', 'url' => url('assets/images/skoolyst-blog.png'), 'width' => 793, 'height' => 246],
                         ],
                     ],
                     [

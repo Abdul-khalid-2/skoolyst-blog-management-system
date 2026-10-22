@@ -2,7 +2,7 @@
 <div class="admin-sidebar-backdrop" data-sidebar-backdrop></div>
 <aside class="admin-sidebar" data-sidebar>
   <a href="<?= url('/') ?>" class="admin-sidebar-brand">
-    <img src="<?= url('assets/images/skoolyst-blog.png') ?>" alt="Skoolyst" class="brand-logo-img" width="103" height="32" loading="lazy">
+    <picture><source srcset="<?= url('assets/images/skoolyst-blog-sm.webp') ?>" type="image/webp"><img src="<?= url('assets/images/skoolyst-blog-sm.png') ?>" alt="Skoolyst" class="brand-logo-img" width="103" height="32" loading="lazy" decoding="async"></picture>
     <span class="brand-logo-word">Blogs</span>
   </a>
   <nav class="admin-sidebar-nav">
